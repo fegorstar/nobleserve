@@ -66,7 +66,9 @@ class RegisterView(generics.GenericAPIView):
             'user_full_name': user_full_name,
             'user_email': user_email,
             # Include verification code in the email
-            'verification_code': verification_code
+            'verification_code': verification_code,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
+
         })
         email_data = {
             'email_subject': email_subject,
@@ -118,7 +120,8 @@ class RegisterView(generics.GenericAPIView):
             'verification_code': verification_code,
             'user_full_name': user.first_name,
             # Include verification link in the email
-            'verification_link': verification_link
+            'verification_link': verification_link,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
         })
         email_data = {
             'email_subject': email_subject,
@@ -156,7 +159,12 @@ class ResendVerificationCode(APIView):
         verification_link = f"http://{domain}/auth/verification/?verification_code={verification_code}"
         email_subject = 'Resend Verification Code'
         email_body = render_to_string(
-            'email_templates/resend_verification_code.html', {'user': user, 'verification_code': verification_code, 'verification_link': verification_link})
+            'email_templates/resend_verification_code.html',
+            {'user': user, 'verification_code': verification_code,
+             'verification_link': verification_link,
+             'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
+
+             })
         email_data = {'email_subject': email_subject,
                       'to_email': user.email, 'email_body': email_body}
         Util.send_email(email_data)
@@ -241,7 +249,7 @@ class EmailVerificationAPIView(APIView):
         # Send verification success email to user
         email_subject = _('Email Verification Success')
         email_body = render_to_string(
-            'email_templates/email_verification_success.html', {'user': user})
+            'email_templates/email_verification_success.html', {'user': user, 'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"})
         email_data = {'email_subject': email_subject,
                       'to_email': user.email, 'email_body': email_body}
         Util.send_email(email_data)
@@ -273,7 +281,8 @@ class LoginAPIView(APIView):
             'organization_name': OrgName,
             'support_email': support_email,
             'verification_code': verification_code,
-            'verification_link': verification_link
+            'verification_link': verification_link,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
         }
         email_body = render_to_string(
             'email_templates/email_activation_reminder.html', context)
@@ -438,7 +447,8 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             'reset_url': reset_url,
             'user': user,
             'organization_name': org_name,
-            'support_email': support_email
+            'support_email': support_email,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
         })
 
         # Send the email using Util class

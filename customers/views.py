@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.generics import ListAPIView
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -129,6 +130,8 @@ class ProfileDetailAPIView(APIView):
 
 
 # ===================================EmailChangeAPIView======================================================
+
+
 class EmailChangeAPIView(GenericAPIView):
     serializer_class = EmailChangeSerializer
     permission_classes = [IsAdminorCustomer]
@@ -140,13 +143,14 @@ class EmailChangeAPIView(GenericAPIView):
         email_recipient = new_email
 
         org_name = 'Nobleserve Finance'
-        support_email = 'support@yourstudypath.com'
+        support_email = 'cx@nobleservefinance.com'
 
         email_context = {
             'user': user,
             'new_email': new_email,
             'organization_name': org_name,
             'support_email': support_email,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
         }
 
         email_data = {
@@ -290,6 +294,7 @@ class PersonalLoanCreateAPIView(APIView):
             'user_full_name': f'{user.first_name} {user.last_name}',
             'user_email': user.email,
             'loan_details': loan,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
         })
         email_data = {
             'email_subject': email_subject,
@@ -526,6 +531,7 @@ class PersonalLoanStatusUpdateAPIView(APIView):
         email_body = render_to_string('email_templates/loan_update_notification.html', {
             'user_full_name': f'{user.first_name} {user.last_name}',
             'loan_details': loan,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}",
             'status_message': status_messages.get(loan.status, 'Your loan application status has been updated.')
         })
         data = {

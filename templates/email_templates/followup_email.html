@@ -1,28 +1,19 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thank You for Your Loan Application</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #F2F3F8;
-        }
-    </style>
 </head>
-<body>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #F2F3F8;">
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-            <td align="center" bgcolor="#F2F3F8">
+            <td align="center" bgcolor="#F2F3F8" style="padding: 20px;">
                 <table width="600" border="0" cellspacing="0" cellpadding="0">
                     <!-- Header -->
                     <tr>
                         <td bgcolor="#F2F3F8" style="padding: 20px;">
-                            <img src="{% static 'assets/img/nobleservemainlogo.png' %}" alt="Nobleservie Finance Logo" style="max-width: 150px; display: block;">
+                            <img src="{{ absolute_static_url }}assets/img/nobleservemainlogo.png" alt="Nobleservie Finance Logo" style="max-width: 150px; display: block;">
                         </td>
                     </tr>
                     <!-- Content -->
@@ -42,9 +33,9 @@
                             <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;">199a Jide Oki street,Victoria Island, Lagos State.</p>
                             <div style="text-align: center;">
                                 <!-- Replace icons with your preferred ones -->
-                                <a href="#"><img src="{% static 'assets/img/socials/twitter.png' %}" alt="Twitter" height="20" width="20"></a>
-                                <a href="#"><img src="{% static 'assets/img/socials/facebook.png' %}" alt="Facebook" height="20" width="20"></a>
-                                <a href="#"><img src="{% static 'assets/img/socials/instagram.png' %}" alt="Instagram" height="20" width="20"></a>
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/twitter.png" alt="Twitter" height="20" width="20"></a>
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/facebook.png" alt="Facebook" height="20" width="20"></a>
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/instagram.png" alt="Instagram" height="20" width="20"></a>
                             </div>
                             <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;"><a href="#" style="color: #888; text-decoration: underline;">Unsubscribe</a> from our emails.</p>
                         </td>
