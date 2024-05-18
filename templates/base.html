@@ -34,7 +34,13 @@
        <link rel="stylesheet" href="{% static 'assets/css/style2.css' %}">
 
        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
- 
+       <style>
+        /* Custom class to reduce the size of the SweetAlert modal */
+        .swal-small {
+            max-width: 400px; /* Adjust the maximum width */
+            font-size: 14px; /* Adjust the font size */
+        }
+    </style>
     </head>
     <body>   
        
@@ -51,17 +57,607 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   
  
-      <script src="/static/assets/js/bootstrap.bundle.min.js"></script>
+      <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     
-<script src="{% static 'assets/js/multi-stepregform.js' %}"></script> 
-<script src="{% static 'assets/js/countries.js' %}"></script>  
-<script language="javascript">
-
-   setTimeout(function() {
-       $('#message').fadeOut('slow');
-     }, 3000);
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/country-select-js/2.1.0/css/countrySelect.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/country-select-js/2.1.0/js/countrySelect.min.js"></script>
  
-   populateCountries("country2");
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+  //=============================LOGIN ENDPOINT===================================================
+  $(document).ready(function() {
+    $(".toggle-password").click(function() {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      let input = $(this).siblings('input');
+      if (input.attr("type") === "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+  
+
+  // Function to handle form submission
+  $('#regForm').submit(function(event) {
+    event.preventDefault(); // Prevent default form submission behavior
+
+    const firstName = $('#first_name').val();
+    const lastName = $('#last_name').val();
+    const email = $('#email').val();
+    const password = $('#password').val();
+    const confirmPassword = $('#confirm_password').val();
+    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+
+    // Validate password and confirm password match
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Mismatch',
+        text: 'Password and confirm password do not match.',
+        customClass: {
+          popup: 'swal-small' // Apply custom class to reduce the size
+        }
+      });
+      return;
+    }
+
+     // Save email to local storage
+   localStorage.setItem('verificationEmail', email);
+   
+  // Show loader icon and disable register button
+    $('#regSubmitBtn').prop('disabled', true);
+    $('#regSubmitBtn .reg-submit-text').addClass('d-none');
+    $('#regSubmitBtn .spinner-border').removeClass('d-none');
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url "register" %}',
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        password: password,
+        csrfmiddlewaretoken: csrfToken // Include CSRF token
+      },
+      success: function(response) {
+        // Handle successful registration
+        console.log(response);
+        // Display success message and redirect to login page
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful',
+          text: 'Please check your email to verify your account.',
+          customClass: {
+            popup: 'swal-small' // Apply custom class to reduce the size
+          }
+        }).then(() => {
+        // Handle successful registration
+      console.log(response);
+      // Redirect to verification page along with user email
+      window.location.href = '{% url "verification" %}';
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        // Handle registration error
+        console.error(xhr.responseText);
+        let errorMessage;
+        const errorResponse = JSON.parse(xhr.responseText);
+        // Check if the response contains the "error" key
+        if (errorResponse.hasOwnProperty('error')) {
+          errorMessage = errorResponse.error;
+        } else if (errorResponse.hasOwnProperty('detail')) {
+          // Check if the response contains the "detail" key
+          errorMessage = errorResponse.detail;
+        } else {
+          // If neither key is found, display a generic error message
+          errorMessage = 'An error occurred. Please try again later.';
+        }
+        // Display error message using SweetAlert
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          customClass: {
+            popup: 'swal-small' // Apply custom class to reduce the size
+          }
+        });
+      },
+      complete: function() {
+        // Hide loader icon and enable register button
+        $('#regSubmitBtn').prop('disabled', false);
+        $('#regSubmitBtn .reg-submit-text').removeClass('d-none');
+        $('#regSubmitBtn .spinner-border').addClass('d-none');
+      }
+    });
+  });
+
+  
+// Retrieve verification email from local storage and update HTML content
+const verificationEmail = localStorage.getItem('verificationEmail');
+$('.verification-email-placeholder').text(verificationEmail);
+// Function to handle form submission
+$('#login-form').submit(function(event) {
+  event.preventDefault(); // Prevent default form submission behavior
+  const email = $('#inputEmailAddress').val();
+  const password = $('#password-field').val();
+  const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+
+  // Show loader icon and disable login button
+  $('#login-btn').prop('disabled', true);
+  $('#login-btn .login-text').addClass('d-none');
+  $('#login-btn .spinner-border').removeClass('d-none');
+
+  $.ajax({
+      type: 'POST',
+      url: '{% url "signin" %}',
+      data: {
+          email: email,
+          password: password,
+          csrfmiddlewaretoken: csrfToken // Include CSRF token
+      },
+      success: function(response) {
+          // Handle successful login
+          console.log(response);
+          // Save user data to local storage
+          localStorage.setItem('access_token', response.data.tokens.access);
+          localStorage.setItem('refresh_token', response.data.tokens.refresh);
+          localStorage.setItem('first_name', response.data.first_name);
+          localStorage.setItem('last_name', response.data.last_name);
+          localStorage.setItem('email', response.data.email);
+          localStorage.setItem('country', response.data.country);
+          localStorage.setItem('usertype', response.data.user_type); // Save user_type to local storage
+
+          // Debugging logs
+          console.log('Usertype:', response.data.user_type);
+
+          // Check if the user is authenticated
+          if (response.data.tokens.access && response.data.first_name && response.data.email && response.data.tokens.refresh) {
+              // Redirect based on user_type
+              if (response.data.user_type === 'ADMIN') {
+                  console.log('Redirecting to staffDashboard');
+                  window.location.href = '{% url "staffDashboard" %}';
+              } else if (response.data.user_type === 'CUSTOMER') {
+                  console.log('Redirecting to customerDashboard');
+                  // Check if country is set
+                  if (response.data.country) {
+                      // Redirect to customer dashboard page if country is set
+                      window.location.href = '{% url "customerDashboard" %}';
+                  } else {
+                      // Redirect to setup profile page if country is not set
+                      window.location.href = '{% url "setupprofile" %}';
+                  }
+              } else {
+                  console.error('Unknown user_type');
+              }
+          } else {
+              // Handle authentication failure
+              console.error('Authentication failed');
+              // Display error message
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Authentication failed',
+                  text: 'Please try again.',
+                  customClass: {
+                      popup: 'swal-small' // Apply custom class to reduce the size
+                  }
+              });
+          }
+      },
+      error: function(xhr, textStatus, errorThrown) {
+          // Handle login error
+          console.error(xhr.responseText);
+          let errorMessage;
+          const errorResponse = JSON.parse(xhr.responseText);
+          // Check if the response contains the "error" key
+          if (errorResponse.hasOwnProperty('error')) {
+              errorMessage = errorResponse.error;
+          } else if (errorResponse.hasOwnProperty('detail')) {
+              // Check if the response contains the "detail" key
+              errorMessage = errorResponse.detail;
+          } else {
+              // If neither key is found, display a generic error message
+              errorMessage = 'An error occurred. Please try again later.';
+          }
+          // Display error message using SweetAlert
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMessage,
+              customClass: {
+                  popup: 'swal-small' // Apply custom class to reduce the size
+              }
+          });
+      },
+      complete: function() {
+          // Hide loader icon and enable login button
+          $('#login-btn').prop('disabled', false);
+          $('#login-btn .login-text').removeClass('d-none');
+          $('#login-btn .spinner-border').addClass('d-none');
+      }
+  });
+});
+
+// Function to display the error message again if there's a new error
+$('.btn1').click(function(event) {
+  event.preventDefault();
+  if ($('#message').html().trim() === '') {
+      // If no error message is currently displayed, do nothing
+      return;
+  }
+  var target = $(this).data('target');
+  $('#click-alert').html('data-target= ' + target).fadeIn(50).delay(3000).fadeOut(1000);
+});
+
+// Function to handle forgot password form submission
+$('#forgot-password-form').submit(function(event) {
+  event.preventDefault(); // Prevent default form submission behavior
+  const email = $('#inputForgotEmail').val();
+  const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+
+  // Show loader icon and disable submit button
+  $('#forgot-password-btn').prop('disabled', true);
+  $('#forgot-password-btn .forgot-password-text').addClass('d-none');
+  $('#forgot-password-btn .spinner-border').removeClass('d-none');
+
+  $.ajax({
+      type: 'POST',
+      url: '{% url "RequestPasswordResetEmail" %}', // Replace with your actual endpoint URL
+      data: {
+          email: email,
+          csrfmiddlewaretoken: csrfToken // Include CSRF token
+      },
+      success: function(response) {
+          // Handle success by displaying SweetAlert
+          Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.success,
+              customClass: {
+                  popup: 'swal-small' // Apply custom class to reduce the size
+              }
+          });
+          console.log(response);
+      },
+      error: function(xhr) {
+          // Extract and display only the error message
+          const errorResponse = JSON.parse(xhr.responseText);
+          let errorMessage = "";
+          // Check if error is related to email field being blank
+          if (errorResponse.email) {
+              errorMessage = errorResponse.email[0];
+          } else {
+              errorMessage = errorResponse.error;
+          }
+          // Display error message using SweetAlert
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMessage,
+              customClass: {
+                  popup: 'swal-small' // Apply custom class to reduce the size
+              }
+          });
+      },
+      complete: function() {
+          // Hide loader icon and enable submit button
+          $('#forgot-password-btn').prop('disabled', false);
+          $('#forgot-password-btn .forgot-password-text').removeClass('d-none');
+          $('#forgot-password-btn .spinner-border').addClass('d-none');
+      }
+  });
+});
+
+// Function to handle set new password form submission
+$('#set-new-password-form').submit(function(event) {
+  event.preventDefault(); // Prevent default form submission behavior
+  const newPassword = $('#inputNewPassword').val();
+  const confirmPassword = $('#inputConfirmPassword').val();
+  const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const uidb64 = urlParams.get('uidb64');
+
+  // Validate password and confirm password
+  if (newPassword !== confirmPassword) {
+      // Display error message using SweetAlert
+      Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Passwords do not match',
+          customClass: {
+              popup: 'swal-small' // Apply custom class to reduce the size
+          }
+      });
+      return; // Exit the function
+  }
+
+  // Show loader icon and disable submit button
+  $('#set-new-password-btn').prop('disabled', true);
+  $('#set-new-password-btn .set-new-password-text').addClass('d-none');
+  $('#set-new-password-btn .spinner-border').removeClass('d-none');
+
+  $.ajax({
+      type: 'PATCH',
+      url: '{% url "password-reset-complete" %}',
+      data: {
+          token: token,
+          uidb64: uidb64,
+          password: newPassword,
+          csrfmiddlewaretoken: csrfToken
+      },
+      success: function(response) {
+        // Handle success by displaying SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: response.message,
+            customClass: {
+                popup: 'swal-small' // Apply custom class to reduce the size
+            }
+        }).then((result) => {
+            // Redirect to login page
+            if (result.isConfirmed || result.isDismissed) {
+                window.location.href = '{% url "login" %}';
+            }
+        });
+        console.log(response);
+    },
+    error: function(xhr) {
+      let errorMessage;
+      const errorResponse = JSON.parse(xhr.responseText);
+      
+      // Check if the response contains the "error" key
+      if (errorResponse.hasOwnProperty('error')) {
+          errorMessage = errorResponse.error;
+      } else if (errorResponse.hasOwnProperty('detail')) {
+          // Check if the response contains the "detail" key
+          errorMessage = errorResponse.detail;
+      } else {
+          // If neither key is found, display a generic error message
+          errorMessage = 'An error occurred. Please try again later.';
+      }
+  
+      // Display error message using SweetAlert
+      Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          customClass: {
+              popup: 'swal-small' // Apply custom class to reduce the size
+          }
+      });
+  },
+  
+      complete: function() {
+          // Hide loader icon and enable submit button
+          $('#set-new-password-btn').prop('disabled', false);
+          $('#set-new-password-btn .set-new-password-text').removeClass('d-none');
+          $('#set-new-password-btn .spinner-border').addClass('d-none');
+      }
+  });
+});
+
+
+
+//function to verify email using verification code
+  // Check if verification code is present in URL parameter
+  const verificationCode = getParameterByName('verification_code');
+
+  // If verification code is present, automatically populate the input fields
+  if (verificationCode) {
+      populateInputFields(verificationCode);
+      verifyEmail(verificationCode); // Automatically trigger email verification
+  }
+
+  // Function to verify email using verification code when button is clicked
+  $('#enter-code-form').submit(function(event) {
+      event.preventDefault(); // Prevent default form submission behavior
+      const enteredVerificationCode = collectVerificationCode(); // Get verification code from input fields
+      if (enteredVerificationCode) {
+          verifyEmail(enteredVerificationCode);
+      } else {
+          // Display error message if verification code is not provided
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Verification code not provided'
+          });
+      }
+  });
+});
+
+// Function to collect verification code from input fields
+function collectVerificationCode() {
+  const codeInputs = $('.code-input');
+  let verificationCode = '';
+  codeInputs.each(function() {
+      verificationCode += $(this).val();
+  });
+  return verificationCode;
+}
+
+// Function to populate input fields with verification code
+function populateInputFields(verificationCode) {
+  const codeInputs = $('.code-input');
+  for (let i = 0; i < verificationCode.length; i++) {
+      $(codeInputs[i]).val(verificationCode.charAt(i));
+  }
+}
+
+// Function to verify email using verification code
+function verifyEmail(verificationCode) {
+  $.ajax({
+      type: 'POST',
+      url: '{% url "verify-email" %}',
+      data: {
+          verification_code: verificationCode
+      },
+      success: function(response) {
+          // Display success message from backend response
+          Swal.fire({
+              icon: 'success',
+              title: 'Email Verified',
+              text: response.message,
+              timer: 3000, // Show for 3 seconds
+              showConfirmButton: false
+          }).then(function() {
+              // Redirect to login page after delay
+              setTimeout(function() {
+                  window.location.href = '{% url "login" %}';
+              }, 3000); // Delay for 3 seconds
+          });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+          console.error(xhr.responseText);
+          // Parse error message from backend response
+          var errorResponse = JSON.parse(xhr.responseText);
+          var errorMessage;
+          if (errorResponse.hasOwnProperty('detail')) {
+              errorMessage = errorResponse.detail;
+          } else if (errorResponse.hasOwnProperty('error')) {
+              errorMessage = errorResponse.error;
+          } else {
+              errorMessage = 'Failed to verify email. Please try again later.';
+          }
+          // Display error message using SweetAlert
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMessage,
+              timer: 3000 // Show for 5 seconds
+          });
+      }
+  });
+}
+
+// Function to extract URL parameter by name
+function getParameterByName(name) {
+  var urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+
+
+//Resend Verifcation code endpoint
+$('.resend-code').click(function(event) {
+  event.preventDefault(); // Prevent default link behavior
+  
+  // Retrieve verification email from local storage
+  const verificationEmail = localStorage.getItem('verificationEmail');
+
+  $.ajax({
+    type: 'POST',
+    url: '{% url "resend_verification_code" %}', 
+    data: {
+      email: verificationEmail
+    },
+    success: function(response) {
+      // Display success message from backend response
+      Swal.fire({
+        icon: 'success',
+        title: 'Verification Code Resent',
+        text: response.message,
+        timer: 3000, // Show for 3 seconds
+        showConfirmButton: false
+      });
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      console.error(xhr.responseText);
+      // Parse error message from backend response
+      var errorResponse = JSON.parse(xhr.responseText);
+      var errorMessage = errorResponse.error ? errorResponse.error : 'Failed to resend verification code. Please try again later.';
+      // Display error message using SweetAlert
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        timer: 5000 // Show for 5 seconds
+      });
+    }
+  });
+});
+
+
+
+    // Handle form submission
+    $('#profileForm').submit(function(event) {
+      event.preventDefault(); // Prevent default form submission behavior
+
+      // Show loader icon and disable submit button
+      $('#profileSubmitBtn').prop('disabled', true);
+      $('.profile-submit-text').addClass('d-none');
+      $('.spinner-border').removeClass('d-none');
+
+      var formData = new FormData(this); // Create FormData object with the form data
+
+      $.ajax({
+          type: 'PUT',
+          url: '{% url "profile-update" %}',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+              // Handle successful profile update
+              console.log(response);
+
+              // Save country to local storage
+              var country = $('#country').val();
+              localStorage.setItem('country', country);
+
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Profile updated successfully',
+                  customClass: {
+                      popup: 'swal-small' // Apply custom class to reduce the size
+                  }
+              }).then(function() {
+                  // Redirect to customerDashboard after success message
+                  window.location.href = '{% url "customerDashboard" %}';
+              });
+          },
+          error: function(xhr, textStatus, errorThrown) {
+              // Handle error
+              console.error(xhr.responseText);
+              let errorMessage = 'An error occurred. Please try again later.';
+              const errorResponse = JSON.parse(xhr.responseText);
+
+              if (errorResponse.error) {
+                  // Extract and format the error messages
+                  const errors = errorResponse.error;
+                  errorMessage = '';
+                  for (const [field, messages] of Object.entries(errors)) {
+                      errorMessage += `${field.charAt(0).toUpperCase() + field.slice(1)}: ${messages.join(', ')}<br>`;
+                  }
+              } else if (errorResponse.detail) {
+                  errorMessage = errorResponse.detail;
+              }
+
+              // Display error message using SweetAlert
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  html: errorMessage,
+                  customClass: {
+                      popup: 'swal-small' // Apply custom class to reduce the size
+                  }
+              });
+          },
+          complete: function() {
+              // Hide loader icon and enable submit button
+              $('#profileSubmitBtn').prop('disabled', false);
+              $('.profile-submit-text').removeClass('d-none');
+              $('.spinner-border').addClass('d-none');
+          }
+      });
+  });
+
+  
+</script>
+
+<script language="javascript">
+populateCountries("country2");
 populateCountries("country2");
 </script>  
 

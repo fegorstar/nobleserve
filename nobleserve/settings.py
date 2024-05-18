@@ -13,6 +13,7 @@ from django.contrib.messages import constants as messages
 from pathlib import Path
 from decouple import config
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,32 +23,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(os.environ.get('DEBUG')) == "1"  # 1 == True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-
-ENV_ALLOWED_HOST = os.environ.get('DJANGO_ALLOWED_HOST') or None
-ALLOWED_HOSTS = ['nobleserve-app-785n5.ondigitalocean.app',
-                 'www.nobleservefinance.com']
+ENV_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', default=None)
+ALLOWED_HOSTS = [
+    '127.0.0.1', 'nobleserve-app-785n5.ondigitalocean.app', 'www.nobleservefinance.com']
 if not DEBUG:
-    ALLOWED_HOSTS += [os.environ.get('DJANGO_ALLOWED_HOST')]
+    ALLOWED_HOSTS += [ENV_ALLOWED_HOST]
+
+
+BASE_URL = config('FRONTEND_URL', default='http://127.0.0.1:8000/')
+
 
 # Application definition
-
 INSTALLED_APPS = [
+    'drf_yasg',
+    "jazzmin",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'accounts',
     'customers',
     'widget_tweaks',
-    'django_countries'
+    "rest_framework",
+    'corsheaders',
 
 
 ]
@@ -56,12 +61,89 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # cors issues
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Nobleserve",
+    "site_header": "Nobleserve",
+    "site_brand": "Nobleserve",
+    "site_icon": "assets/img/favicon.png",
+    # Add your own branding here
+    "site_logo": "assets/img/favicon.png",
+    "welcome_sign": "Welcome to Nobleserve Finance Admin Panel",
+    # Copyright on the footer
+    "copyright": "Nobleserve Finance Company",
+    ############
+    # Top Menu #
+    ############
+
+
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,  # Disable the use of Django session authentication
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'SHOW_REQUEST_HEADERS': True,  # Display an input field for headers in Swagger UI
+    'VALIDATOR_URL': None,  # Disable the schema validator URL
+    'OPERATIONS_SORTER': 'alpha',  # Sort operations alphabetically in Swagger UI
+    # Other settings you might consider adding or modifying
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1440),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+)
+
+CORS_ALLOW_HEADERS = [
+    'x-request-id',
+    'authorization',
+    'content-type',  # Include 'Content-Type' in the allowed headers
+    # Other allowed headers
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    # Other allowed methods
+]
+
 
 ROOT_URLCONF = 'nobleserve.urls'
 
@@ -84,6 +166,45 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nobleserve.wsgi.application'
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    'https://209.97.190.64',
+    'https://mentorhub.cloud.ren.ng',
+    'https://localhost:5173',
+    'https://localhost:5174',
+    'https://localhost:5175'
+)
+
+
+# EMAIL CONFIGURATION
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'mail.datasphir.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -97,19 +218,18 @@ WSGI_APPLICATION = 'nobleserve.wsgi.application'
 #     }
 # }
 
-POSTGRES_DB = os.environ.get("POSTGRES_DB")  # database name
-POSTGRES_PASSWORD = os.environ.get(
-    "POSTGRES_PASSWORD")  # database user password
-POSTGRES_USER = os.environ.get("POSTGRES_USER")  # database username
-POSTGRES_HOST = os.environ.get("POSTGRES_HOST")  # database host
-POSTGRES_PORT = os.environ.get("POSTGRES_PORT")  # database port
+POSTGRES_DB = config("POSTGRES_DB")
+POSTGRES_PASSWORD = config("POSTGRES_PASSWORD")
+POSTGRES_USER = config("POSTGRES_USER")
+POSTGRES_HOST = config("POSTGRES_HOST")
+POSTGRES_PORT = config("POSTGRES_PORT")
 
 POSTGRES_READY = (
-    POSTGRES_DB is not None
-    and POSTGRES_PASSWORD is not None
-    and POSTGRES_USER is not None
-    and POSTGRES_HOST is not None
-    and POSTGRES_PORT is not None
+    POSTGRES_DB
+    and POSTGRES_PASSWORD
+    and POSTGRES_USER
+    and POSTGRES_HOST
+    and POSTGRES_PORT
 )
 
 if POSTGRES_READY:
@@ -159,7 +279,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lagos'
 
 USE_I18N = True
 

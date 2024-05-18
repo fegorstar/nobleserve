@@ -1,13 +1,8 @@
-
 {% extends "base.html" %}  
 {% load static %}
 {% block title %} Login {% endblock %}
 
 {% block content %}
-
-{% load static %}
-
-
 {% include 'partials/preloader.html' %}
 
 <!--wrapper-->
@@ -51,34 +46,39 @@
                                         </svg></a> 
                                         
                                     <h4 class="">Welcome Back!</h4>
-                                    <p class="mb-0">Don't have an account? <a class="text-bold" href="{% url 'register' %}">Sign Up</a></p>
+                                    <p class="mb-0">Don't have an account? <a class="text-bold" href="{% url 'signup' %}">Sign Up</a></p>
                                 </div>
                                 <div class="form-body">
+                                    <!-- Message div to display error messages -->
+                                    <div id="message" style="text-align: center;"></div>
 
-                                    <form class="row g-3" action="{% url 'login' %}"  method="post" enctype="multipart/form-data">
+                                    <form id="login-form" class="row g-3">
+                                      
                                         {% csrf_token %}
-                                        {% include 'partials/alerts.html' %}
 
                                         <div class="col-12">
                                             <label for="inputEmailAddress" class="form-label">Email Address</label>
-                                            <input type="email" name="email" class="form-control" id="inputEmailAddress" placeholder="example@user.com">
+                                            <input style="height: 45px;" type="email" name="email" class="form-control" id="inputEmailAddress" placeholder="Enter Email">
                                         </div>
                                         <div class="col-12">
                                             <label for="inputChoosePassword" class="form-label">Password</label>
                                             <div class="input-group" id="show_hide_password">
-                                                    <input id="password-field" type="password" class="form-control" name="password"> <a href="javascript:;" class="input-group-text bg-transparent"> <span toggle="#password-field" class="fa fa-eye-slash field-icon toggle-password"></span></a>
+                                                <input style="height: 45px;" id="password-field" type="password" class="form-control" name="password" placeholder="Enter Password"> <a href="javascript:;" class="input-group-text bg-transparent"> <span toggle="#password-field" class="fa fa-eye-slash field-icon toggle-password"></span></a>
                                             </div>
                                         </div>
-                                            <div class="col-12">
-                                                <div class="text-end ptb-10" >	<a style=" color:red" href="authentication-forgot-password.html">Forgot Password ?</a>
+                                        <div class="col-12">
+                                            <div class="text-end ptb-10" >	<a style=" color:red" href="{% url 'forgetPassword' %}">Forgot Password ?</a>
                                         
                                             </div>
                                         <div class="col-12">
                                             <div class="d-grid ">
-                                                <button type="submit" class="btn  style1">LOGIN <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="currentColor" fill-rule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clip-rule="evenodd"/></svg></button>
-                                            </div>
+                                                <button type="submit" class="btn style1" id="login-btn">
+                                                    <span class="login-text">LOGIN</span>
+                                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                </button>   </div>
                                         </div>
                                      
+ 
                                     </form>
                                 </div>
                               
@@ -92,5 +92,5 @@
         </div>
     </div>
 </div>
-    {% endblock content %}
 
+{% endblock content %}

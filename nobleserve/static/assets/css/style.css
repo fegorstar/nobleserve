@@ -61,10 +61,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
+
 
 a {
   color: #063873;
@@ -477,7 +474,7 @@ section.registration s:before {
   padding-left: 10px;
   border: 1px solid #404755;
   border-radius: 4px;
-  -webkit-appearance: none;
+ 
 }
 
 .single-select input::-webkit-input-placeholder {
@@ -5262,7 +5259,7 @@ font-family: 'Cabinet Grotesk', sans-serif;
 
 .checkbox label:before {
   content: "";
-  -webkit-appearance: none;
+ 
   background-color: transparent;
   border: 1px solid #052E60;
   display: inline-block;
@@ -7110,6 +7107,7 @@ form select.error:focus {
 
   .arroico{
     display: none;
+    
   }
 
 

@@ -3,13 +3,19 @@
 {% load static %}
 {% block title %} Customer Dashboard {% endblock %}
 
-{% block content %}
 
+{% block content %}
 {% include 'partials/dashboard/header.html' %}
 {% include 'partials/dashboard/sidebar.html' %}
-
+<head>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+</head>
  <!-- BEGIN: Content-->
- <div class="app-content content">
+ <div class="app-content content" id="page-content">
     <div class="content-overlay"></div>
     <div class="content-wrapper">
       <div class="content-header row">
@@ -127,7 +133,7 @@
   </div>
   <div class="col-xl-3 col-lg-6 col-12">
       <div class="card pull-up">
-        <a href="{% url 'addpersonalloan' %}">
+        <a href="{% url 'personalloans' %}">
           <div class="card-content">
               <div class="card-body">
                   <div class="media d-flex">

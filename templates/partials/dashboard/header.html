@@ -1,50 +1,204 @@
- <!-- BEGIN: Header-->
- {% load static %}
- <nav class="header-navbar navbar-expand-md navbar navbar-with-menu navbar-without-dd-arrow fixed-top navbar-light navbar-shadow navbar-brand-center">
+<!-- BEGIN: Header-->
+{% load static %}
+<nav class="header-navbar navbar-expand-md navbar navbar-with-menu navbar-without-dd-arrow fixed-top navbar-light navbar-shadow navbar-brand-center">
     <div class="navbar-wrapper">
-      <div class="navbar-header">
-        <ul class="nav navbar-nav flex-row">
-          <li class="nav-item mobile-menu d-md-none mr-auto"><a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu font-large-1"></i></a></li>
-         
-          <li class="nav-item d-md-none"><a class="nav-link open-navbar-container" data-toggle="collapse" data-target="#navbar-mobile"><i class="la la-ellipsis-v"></i></a></li>
-        </ul>
-      </div>
-      <div class="navbar-container content">
-        <div class="collapse navbar-collapse" id="navbar-mobile">
-          <ul class="nav navbar-nav mr-auto float-left">
-              <li class="dropdown nav-item mega-dropdown d-none d-lg-block">
-              <a class="dropdown-toggle nav-link" href="{% url 'myAccount' %}" data-toggle="dropdown">
-              <img class="brand-logo" src="{% static 'assets/img/nobleserve logo 1.png' %}"  width="40px" alt="logo">
-          
-            </a> </li>
-           
-              
-                  </ul>
-                </li>
-              </ul>
-            </li>
-         
-          </ul>
-          <ul class="nav navbar-nav float-right">
-          
-      
-            <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown"><span class="mr-1 user-name text-bold-700">Welcome, {{user.username}} </span>
-              <span class="avatar avatar-online">
-                {% if profile.photo %}
-                <img class="img-fluid rounded" src="{{profile.photo.url }}"  alt="user">
-                {% else %}
-                <img class="img-fluid rounded" src="{% static 'app-assets/images/avtar/admin-avatar.png' %} " alt="user">
-                {% endif %}
-                
-                     <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="user-profile.html"><i class="ft-user"></i> Edit Profile</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'logout' %}"><i class="ft-power"></i> Logout</a>
-              </div>
-            </li>
-          </ul>
+        <div class="navbar-header">
+            <ul class="nav navbar-nav flex-row">
+                <li class="nav-item mobile-menu d-md-none mr-auto"><a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="ft-menu font-large-1"></i></a></li>
+                <li class="nav-item d-md-none"><a class="nav-link open-navbar-container" data-toggle="collapse" data-target="#navbar-mobile"><i class="la la-ellipsis-v"></i></a></li>
+            </ul>
         </div>
-      </div>
+        <div class="navbar-container content">
+            <div class="collapse navbar-collapse" id="navbar-mobile">
+                <ul class="nav navbar-nav mr-auto float-left" id="nav-link-container">
+                    <!-- Navigation link will be inserted here by JavaScript -->
+                </ul>
+                <ul class="nav navbar-nav float-right">
+                    <li class="dropdown dropdown-user nav-item">
+                        <a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
+                            <span class="mr-1 user-name text-bold-700" id="user-first-name">Welcome, Loading...</span>
+                            <span class="avatar avatar-online">
+                                <img class="img-fluid rounded" id="user-profile-image" src="{% static 'assets/img/profile-default.png' %}" alt="user">
+                            </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{% url 'profile' %}"><i class="ft-user"></i>Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" id="logout-btn"><i class="ft-power"></i> Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </nav>
-  <!-- END: Header-->
+</nav>
+<!-- END: Header-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Function to check if user is authenticated
+        function checkAuthentication() {
+            // Retrieve access token from local storage
+            var accessToken = localStorage.getItem('access_token');
+    
+            // If access token is missing, redirect to login page
+            if (!accessToken) {
+                window.location.href = '{% url "login" %}';
+                return false;
+            }
+                  // Check if access token is expired
+            // You need to implement a function to check token expiration based on your authentication mechanism
+            if (isTokenExpired(accessToken)) {
+                // If token is expired, log the user out
+                window.location.href = '{% url "login" %}';
+                return false;
+            }
+
+    
+            return true;
+        }
+    
+        // Check authentication status when the document is ready
+        if (!checkAuthentication()) {
+            // If not authenticated, prevent rendering of content
+            // (The body is already hidden by default)
+            return;
+        } else {
+            // If authenticated, show the content
+            $('body').show();
+        }
+    
+        // Function to fetch user details and update header
+        function fetchUserDetails() {
+            // Check if user is authenticated
+            if (!checkAuthentication()) {
+                return;
+            }
+    
+            // Retrieve access token from local storage
+            var accessToken = localStorage.getItem('access_token');
+    
+            // Set authorization header with access token
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            });
+    
+            // Fetch user details using the access token
+            $.ajax({
+                type: 'GET',
+                url: '{% url "profile-detail" %}',
+                success: function(response) {
+                    // Access the profile data correctly
+                    var profile = response.profile;
+    
+                    // Update user's first name in the header
+                    $('#user-first-name').text('Welcome, ' + profile.first_name);
+                    // Update user's profile image in the header
+                    var profileImage = profile.profile_picture;
+                    if (profileImage) {
+                        $('#user-profile-image').attr('src', profileImage);
+                    } else {
+                        // If profile image is not available, use default image
+                        $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+                    }
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    // Handle error
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    
+        // Call fetchUserDetails function when the document is ready
+        fetchUserDetails();
+    
+
+        
+   // Function to check if access token is expired
+function isTokenExpired(accessToken) {
+    // Extract the payload part of the token
+    var payloadPart = accessToken.split('.')[1];
+    
+    // Decode the payload using base64 decoding
+    var decodedPayload = decodeURIComponent(atob(payloadPart).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    // Parse the decoded payload as JSON
+    var payload = JSON.parse(decodedPayload);
+    
+    // Get the expiration time from the payload
+    var expirationTime = payload.exp;
+    
+    // Get the current time in seconds
+    var currentTime = Math.floor(Date.now() / 1000);
+    
+    // Check if the current time is greater than or equal to the expiration time
+    // If the token has expired, return true; otherwise, return false
+    return currentTime >= expirationTime;
+}
+
+
+        // Logout function
+        function logoutUser() {
+            // Clear localStorage
+            localStorage.clear();
+            // Redirect to login page
+            window.location.href = '{% url "login" %}';
+        }
+    
+        // Logout user when logout button is clicked
+        $('#logout-btn').on('click', function() {
+            logoutUser();
+        });
+// Function to check if the user is allowed to access the staff dashboard
+function checkAccessToStaffDashboard() {
+    var userType = localStorage.getItem('usertype');
+
+    // If the user is not an admin and tries to access the staff dashboard, redirect them to the customer dashboard
+    if (userType !== 'ADMIN' && window.location.pathname.includes("/staffDashboard/")) {
+        window.location.href = '{% url "customerDashboard" %}';
+    }
+    
+    // If the user is an admin and tries to access the customer dashboard, redirect them to the staff dashboard
+    if (userType === 'ADMIN' && window.location.pathname.includes("/customerDashboard/")) {
+        window.location.href = '{% url "staffDashboard" %}';
+    }
+}
+
+    
+        // Call the function to check access to the staff dashboard
+        checkAccessToStaffDashboard();
+    
+        // Function to update navigation link based on user type
+        function updateNavLink() {
+            var userType = localStorage.getItem('usertype');
+            var navLinkContainer = $('#nav-link-container');
+    
+            if (userType === 'ADMIN') {
+                navLinkContainer.html(`
+                    <li class="dropdown nav-item mega-dropdown d-none d-lg-block">
+                        <a class="dropdown-toggle nav-link" href="{% url 'staffDashboard' %}" data-toggle="dropdown">
+                            <img class="brand-logo" src="{% static 'assets/img/nobleservemainlogo.png' %}" width="40px" alt="logo">
+                        </a>
+                    </li>
+                `);
+            } else if (userType === 'CUSTOMER') {
+                navLinkContainer.html(`
+                    <li class="dropdown nav-item mega-dropdown d-none d-lg-block">
+                        <a class="dropdown-toggle nav-link" href="{% url 'customerDashboard' %}" data-toggle="dropdown">
+                            <img class="brand-logo" src="{% static 'assets/img/nobleservemainlogo.png' %}" width="40px" alt="logo">
+                        </a>
+                    </li>
+                `);
+            }
+        }
+    
+        // Update navigation link when the document is ready
+        updateNavLink();
+    });
+    
+</script>

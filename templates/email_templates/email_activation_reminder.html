@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobleserve Finance Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F2F3F8;
+        }
+    </style>
+</head>
+<body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" bgcolor="#F2F3F8">
+                <table width="600" border="0" cellspacing="0" cellpadding="0">
+                    <!-- Header -->
+                    <tr>
+                        <td bgcolor="#F2F3F8" style="padding: 20px;">
+                            <img src="{% static 'assets/img/nobleservemainlogo.png' %}" alt="Nobleservie Finance Logo" style="max-width: 150px; display: block;">
+                        </td>
+                    </tr>
+                    <!-- Additional Image -->
+                                      <!-- Content -->
+                    <tr>
+                        <td bgcolor="#FFFFFF" style="border-radius: 20px; padding: 30px; color: #384860;">
+                            <h1 style="font-family: Gilroy; font-size: 20px; font-weight: 600; line-height: 24px; text-align: left;">Confirm Verification Code!</h1>
+                            <p style="text-align: left;">Hi {{ user.first_name }},</p>
+                             <p>We noticed that your account on {{ organization_name }} has not been activated yet.</p>
+    
+    <p>Please use the following verification code to activate your account:</p>
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse;">
+      <tr>
+      <td bgcolor="#ffffff">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <!-- ... -->
+          <tr>
+            <td style="padding: 0px 0 0px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+              <table cellpadding="0" cellspacing="5" style="display: inline-block;">
+                <!-- Repeat this block for each digit, replace 'X' with actual numbers -->
+              <!-- Inside the table where you display the verification code digits -->
+<tr>
+    {% for digit in verification_code %}
+    <td style="padding: 10px 14px; font-family: Gilroy-Bold; font-size: 25px; font-weight: 400; line-height: 24px; text-align: center; color: #121A26; border: 2px solid #2855AE; border-radius: 10px;">
+        <strong>{{ digit }}</strong>
+    </td>
+    {% endfor %}
+</tr>              </table>
+            </td>
+          </tr>
+          <!-- ... -->
+        </table>
+      </td>
+    </tr>
+    <!-- ... other parts of your email template ... -->
+  </table>
+
+                            <p style="text-align: left;">This code will only be valid for the next 5 minutes. If the code does not work, you can use this login verification link:</p>
+    <div style="text-align: left;">
+                                <a href="{{ verification_link }}" style="display: inline-block; padding: 10px 20px; color: white; background: linear-gradient(313.78deg, #2855AE -3.15%, #7292CF 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)); border-radius: 5px; text-decoration: none; font-family: Metropolis; font-size: 14px; font-weight: 600; line-height: 24px; text-align: left;">Verify Email</a>
+                            </div>                            
+    <p>If you did not request this verification, please ignore this email.</p>
+    <br>
+    <p>Best regards,</p>
+    <p>The Admin Team</p>
+                        
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" bgcolor="#F2F3F8" style="padding: 20px;">
+                                  <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;">199a Jide Oki street,Victoria Island, Lagos State.</p>
+                            <div style="text-align: center;">
+                                <!-- Replace icons with your preferred ones -->
+                                <a href="#">
+								<img src="{% static 'assets/img/socials/twitter.png' %}" alt="Twitter" height="20" width="20"></a>
+                                <a href="#">
+								<img src="{% static 'assets/img/socials/facebook.png' %}" alt="Facebook" height="20" width="20"></a>
+                                <a href="#">
+								<img src="{% static 'assets/img/socials/instagram.png' %}" alt="Instagram" height="20" width="20"></a>
+                            </div>
+                            <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;"><a href="#" style="color: #888; text-decoration: underline;">Unsubscribe</a> from our emails.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

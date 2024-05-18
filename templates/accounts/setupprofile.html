@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Setup Profile {% endblock %}
+{% block content %}
+
+{% include 'partials/preloader.html' %}
+<head>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+</head>
+<!--wrapper-->
+<div class="wrapper">
+    <div class="section-authentication-cover">
+        <div class="">
+            <div class="row g-0">
+
+                <div class="col-12 col-xl-7 col-xxl-8 auth-cover-left">
+                    <div class="hero-content style1" id="desktop">
+                        <a href="{% url 'home' %}">
+                            <img class="logo-dark" src="{% static 'assets/img/logo_white.svg' %}" width="130px" alt="logo">
+                        </a>
+                        <h1>You are welcome to <br>Nobleserve Finance!</h1>
+                        <p>We're excited to help you secure the funds you need. <br/> To get started, please complete the profile setup process <br/> below.</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-5 col-xxl-4 auth-cover-right align-items-center justify-content-center">
+                    <div class="card rounded-0 m-3 shadow-none bg-transparent mb-0" style="border:0px">
+                        <div class="card-body">
+                            <div class="">
+                                <div class="text-left mb-4">
+                                    <div id="mobl" class="hero-content style1">
+                                        <a href="{% url 'home' %}">
+                                            <img class="logo-dark" src="{% static 'assets/img/nobleserve logo 1.png' %}" width="130px" alt="logo">
+                                        </a>
+                                    </div>
+                                    <a href="{% url 'login' %}" class="arroico">
+                                        <svg width="50" height="50" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M23.7143 38L25.2143 36.5L17.7858 29.0714H42.2858V26.9286H17.7858L25.2143 19.5L23.7143 18L13.7143 28L23.7143 38Z" fill="#101828"/>
+                                            <rect x="0.5" y="0.5" width="55" height="55" rx="27.5" stroke="#101828"/>
+                                        </svg>
+                                    </a>
+                                    <h4 class="text-center">Setup Your Profile</h4>
+                                </div>
+                                <div class="form-body">
+                                    <form id="profileForm" method="POST" enctype="multipart/form-data" class="row g-3">
+                                        {% csrf_token %}
+                                        <div class="row mb-3">
+                                            <div class="col-12 text-center">
+                                                <div class="profile-picture-container mx-auto" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden;" title="Select Profile Image">
+                                                    <input type="file" id="profile_picture" name="profile_picture" class="form-control d-none" accept="image/*" onchange="loadFile(event)">
+                                                    <img id="profile_image_preview" src="{% static 'assets/img/profile-default.png' %}" alt="Profile Picture" class="profile-image" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; border-radius: 50%;" onclick="document.getElementById('profile_picture').click();">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                              <div class="row mb-3">
+                                            <div class="col-12">
+                                                <label for="phone_number" class="form-label">Phone Number</label>
+                                                <input type="tel" id="phone_number" name="phone_number" class="form-control" style="height: 45px; width: 100%;" placeholder="Enter Phone Number" required>
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="row mb-3">
+                                            <div class="col-12">
+                                                <label for="country" class="form-label">Country</label>
+                                                <input id="country" name="country" class="form-control" style="height: 45px; width: 100%;" placeholder="Select Country" required>
+                                            </div>
+                                        </div>
+                                    
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <label for="state" class="form-label">State</label>
+                                                <input type="text" id="state" name="state" class="form-control" style="height: 45px; width: 100%;" placeholder="Enter State" required>
+                                            </div>
+                                            <div class="col-6">
+                                                <label for="city" class="form-label">City</label>
+                                                <input type="text" id="city" name="city" class="form-control" style="height: 45px; width: 100%;" placeholder="Enter City" required>
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="d-grid">
+                                                    <button type="submit" class="btn style1" id="profileSubmitBtn">
+                                                        <span class="profile-submit-text">Complete Signup</span>
+                                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!--end row-->
+        </div>
+    </div>
+</div>
+
+<script>
+  // Preview uploaded profile image
+  function loadFile(event) {
+    var output = document.getElementById('profile_image_preview');
+    output.src = URL.createObjectURL(event.target.files[0]);
+    output.onload = function() {
+      URL.revokeObjectURL(output.src) // Free memory
+    }
+  }
+
+ 
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Function to check if user is authenticated
+        function checkAuthentication() {
+            // Retrieve access token, user email, and country from local storage
+            var accessToken = localStorage.getItem('access_token');
+            var email = localStorage.getItem('email');
+          
+            // If access token, email, or country is missing, redirect to login page
+            if (!accessToken || !email) {
+                window.location.href = '{% url "login" %}';
+                return false;
+            }
+
+            return true;
+        }
+
+        // Check authentication status when the document is ready
+        if (!checkAuthentication()) {
+            // If not authenticated, prevent rendering of content
+            // (The body is already hidden by default)
+            return;
+        } else {
+            // If authenticated, show the content
+            $('body').show();
+        }
+
+        // Function to fetch user details and update header
+        function fetchUserDetails() {
+            // Check if user is authenticated
+            if (!checkAuthentication()) {
+                return;
+            }
+
+            // Retrieve access token and user details from local storage
+            var accessToken = localStorage.getItem('access_token');
+            var firstName = localStorage.getItem('first_name');
+
+            // Set authorization header with access token
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            });
+
+            // Fetch user details using the access token
+            $.ajax({
+                type: 'GET',
+                url: '{% url "profile-detail" %}',
+                success: function(response) {
+                    // Update user's first name in the header
+                    $('#user-first-name').text('Welcome, ' + firstName);
+                    // Update user's profile image in the header
+                    $('#user-profile-image').attr('src', response.profile.profile_picture);
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    // Handle error
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Call fetchUserDetails function when the document is ready
+        fetchUserDetails();
+
+        // Uncomment the following if you want to add a logout functionality
+        /*
+        // Logout function
+        function logoutUser() {
+            // Clear localStorage
+            localStorage.clear();
+            // Redirect to login page
+            window.location.href = '{% url "login" %}';
+        }
+
+        // Logout user when logout button is clicked
+        $('#logout-btn').on('click', function() {
+            logoutUser();
+        });
+        */
+    });
+</script>
+{% endblock content %}

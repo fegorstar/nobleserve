@@ -1,78 +1,114 @@
- <!-- BEGIN: Main Menu-->
-
- <div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" id="sidebar"  data-scroll-to-active="true">
-    <div class="main-menu-content" >
-      
-      
-      
-       <!-- Customer sidebar-nav -->
-       {% if user.is_authenticated and user.get_role == 'Customer'  %}
-      <ul style="margin-top:10px" class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-      
-        <li  class=" nav-item"><a href="{% url 'customerDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a>
-        </li>
-        <li class=" nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">My Loan <br>Applications</span></a>
-          <ul class="menu-content">
-            <br>
-            <li class="active"><a class="menu-item" href="{% url 'customerDashboard' %}"><span> <b>&#8594;</b> Target Savings Plan</span></a>
-            </li>
-            <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a>
-            </li>
-            <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a>
-            </li>
-            <li><a class="menu-item" href="{% url 'viewpersonalloan' %}"><span> <b>&#8594;</b> Personal Loans</span></a>
-            </li>
-            <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a>
-            </li>
-          </ul>
-        </li>
-       
-    
-     
-        <li class=" nav-item"><a href="#"><i class="ft-user"></i> <span class="menu-title" data-i18n="Pages">Profile</span></a></li>
-        <li class=" nav-item"><a href="#"><i class="mbri-user"></i><span class="menu-title" data-i18n="Forms">KYC <br>Verification</span></a></li>
-        <li class=" nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">Account <br> Settings</span></a></li>
+{% load static %}
+<!-- BEGIN: Main Menu-->
+<div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" id="sidebar" data-scroll-to-active="true">
+  <div class="main-menu-content">
+      <!-- Customer sidebar-nav -->
+      <ul id="customer-menu" style="display: none; margin-top:10px" class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
+          <li class="nav-item"><a href="{% url 'customerDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a></li>
+          <li class="nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">My Loan <br>Applications</span></a>
+              <ul class="menu-content">
+                  <li class="active"><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
+                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
+                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
+                  <li><a class="menu-item" href="{% url 'personalloans' %}"><span><b>&#8594;</b> Personal Loans</span></a></li>
+                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a></li>
+              </ul>
+          </li>
+          <li class="nav-item"><a href="{% url 'profile' %}"><i class="ft-user"></i><span class="menu-title" data-i18n="Pages">Profile</span></a></li>
+          <li class="nav-item"><a href="#"><i class="mbri-user"></i><span class="menu-title" data-i18n="Forms">KYC <br>Verification</span></a></li>
+          <li class="nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">Account <br> Settings</span></a></li>
       </ul>
 
-          <!-- Staff sidebar-nav -->
-          {% else %}
-          <ul style="margin-top:10px"  class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-   
-          <li class=" nav-item"><a href="{% url 'staffDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a>
+      <!-- Admin sidebar-nav -->
+      <ul id="admin-menu" style="display: none; margin-top:10px" class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
+          <li class="nav-item"><a href="{% url 'staffDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a></li>
+          <li class="nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">View<br>Applications</span></a>
+              <ul class="menu-content">
+                  <li class="active"><a class="menu-item" href="{% url 'targetSavings' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
+                  <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
+                  <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
+                  <li><a class="menu-item" href="{% url 'personalLoans' %}"><span><b>&#8594;</b> Personal Loans</span></a></li>
+                  <li><a class="menu-it em" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a></li>
+              </ul>
           </li>
-          <li class=" nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">View<br>Applications</span></a>
-            <ul class="menu-content">
-              <br>
-              <li class="active"><a class="menu-item" href="{% url 'targetSavings' %}"><span> <b>&#8594;</b> Target Savings Plan</span></a>
-              </li>
-              <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a>
-              </li>
-              <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a>
-              </li>
-              <li><a class="menu-item" href="{% url 'personalLoans' %}"><span> <b>&#8594;</b> Personal Loans</span></a>
-              </li>
-              <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a>
-              </li>
-            </ul>
-          </li>
-         
-      
-       
-          <li class=" nav-item"><a href="#"><i class="ft-user"></i> <span class="menu-title" data-i18n="Pages">Profile</span></a></li>
-  
-          <li class=" nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">User<br>Management</span></a></li>
-        </ul>
-
-          {% endif %}
-
-
-
-
-  
-
-
-
-    </div>
+          <li class="nav-item"><a href="{% url 'profile' %}"><i class="ft-user"></i><span class="menu-title" data-i18n="Pages">Profile</span></a></li>
+          <li class="nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">User<br>Management</span></a></li>
+      </ul>
   </div>
-
-  <!-- END: Main Menu-->
+</div>
+<!-- END: Main Menu-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Function to check if user is authenticated
+        function checkAuthentication() {
+            // Retrieve access token from local storage
+            var accessToken = localStorage.getItem('access_token');
+    
+            // If access token is missing, redirect to login page
+            if (!accessToken) {
+                window.location.href = '{% url "login" %}';
+                return false;
+            }
+    
+            return true;
+        }
+    
+        // Check authentication status when the document is ready
+        if (!checkAuthentication()) {
+            return;
+        } else {
+            $('body').show();
+        }
+    
+        // Function to fetch user details and update header
+        function fetchUserDetails() {
+            if (!checkAuthentication()) {
+                return;
+            }
+    
+            var accessToken = localStorage.getItem('access_token');
+    
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            });
+    
+            $.ajax({
+                type: 'GET',
+                url: '{% url "profile-detail" %}',
+                success: function(response) {
+                    var profile = response.profile;
+                    $('#user-first-name').text('Welcome, ' + profile.first_name);
+                    var profileImage = profile.profile_picture;
+                    if (profileImage) {
+                        $('#user-profile-image').attr('src', profileImage);
+                    } else {
+                        $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+                    }
+                    // Check user role and display appropriate menu
+                    if (profile.user_type === 'CUSTOMER') {
+                        $('#customer-menu').show();
+                    } else if (profile.user_type === 'ADMIN') {
+                        $('#admin-menu').show();
+                    }
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    
+        fetchUserDetails();
+    
+        function logoutUser() {
+            localStorage.clear();
+            window.location.href = '{% url "login" %}';
+        }
+    
+        $('#logout-btn').on('click', function() {
+            logoutUser();
+        });
+    });
+</script>

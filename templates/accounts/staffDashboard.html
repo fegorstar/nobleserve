@@ -1,24 +1,26 @@
-
-{% extends "base2.html" %}  
+{% extends "base2.html" %}
 {% load static %}
 {% block title %} Customer Dashboard {% endblock %}
 
 {% block content %}
-
+<head>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+</head>
 {% include 'partials/dashboard/header.html' %}
 {% include 'partials/dashboard/sidebar.html' %}
 
- <!-- BEGIN: Content-->
- <div class="app-content content">
+<!-- BEGIN: Content-->
+<div class="app-content content">
     <div class="content-overlay"></div>
     <div class="content-wrapper">
-      <div class="content-header row">
-      </div>
-      <div class="content-body"><!-- eCommerce statistic -->
-
-
-
+        <div class="content-header row">
+        </div>
         <div class="content-body"><!-- eCommerce statistic -->
+
             <div class="row">
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
@@ -26,32 +28,13 @@
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
-                                        <h3 class="info">{{total_no_of_customers}}</h3>
-                                        <h6  style="margin-top: 10px; font-weight:bold">Number of Customers <br><br></h6>
+                                        <h3 class="info" id="customer-count">Loading...</h3>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Number of Customers <br><br></h6>
                                     </div>
                                     <div>
                                         <i class="icon-user-follow success font-large-2 float-right"></i>
                                     </div>
                                 </div>
-                                                           </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-6 col-12">
-                    <div class="card pull-up">
-                        <div class="card-content">
-                            <div class="card-body">
-                                <div class="media d-flex">
-                                    <div class="media-body text-left">
-                                        <h3 class="warning">{{total_no_of_target_savings}}</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold">Number Target Savings Plan Requests</h6>
-                                    </div>
-                                    <div>
-                                        <img class="" src="{% static 'app-assets/images/icons/targetsavings.svg' %}"  width="50px" alt="logo">
-
-                                    </div>
-                                </div>
-                               
                             </div>
                         </div>
                     </div>
@@ -62,72 +45,101 @@
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
-                                        <h3 class="success">146</h3>
+                                        <h3 class="warning" id="target-savings-count">Loading...</h3>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Number Target Savings Plan Requests</h6>
+                                    </div>
+                                    <div>
+                                        <img class="" src="{% static 'app-assets/images/icons/targetsavings.svg' %}"  width="50px" alt="logo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-6 col-12">
+                    <div class="card pull-up">
+                        <div class="card-content">
+                            <div class="card-body">
+                                <div class="media d-flex">
+                                    <div class="media-body text-left">
+                                        <h3 class="success" id="corporate-loans-count">Loading...</h3>
                                         <h6 style="margin-top: 10px; font-weight:bold">Number Corporate and Commercial Loans</h6>
                                     </div>
                                     <div>
                                         <img class="" src="{% static 'app-assets/images/icons/lease-finance.svg' %}"  width="50px" alt="logo">
                                     </div>
                                 </div>
-                               
                             </div>
                         </div>
                     </div>
                 </div>
-
-
-
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
                         <div class="card-content">
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
-                                        <h3 class="success">146</h3>
+                                        <h3 class="success" id="lease-financing-count">Loading...</h3>
                                         <h6 style="margin-top: 10px; font-weight:bold">Number of Lease Financing Requests</h6>
                                     </div>
                                     <div>
                                         <img class="" src="{% static 'app-assets/images/icons/lease-finance.svg' %}"  width="50px" alt="logo">
                                     </div>
                                 </div>
-                               
                             </div>
                         </div>
                     </div>
                 </div>
-
-
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
                         <a href="{% url 'personalLoans' %}">
-                        <div class="card-content">
-                            <div class="card-body">
-                                <div class="media d-flex">
-                                    <div class="media-body text-left">
-                                        <h3 class="danger">{{total_no_of_personal_loans}}</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold"> Personal Loans<br><br></h6>
-                                    </div>
-                                    <div>
-                                        <img class="" src="{% static 'app-assets/images/icons/personalloans.svg' %}"  width="50px" alt="logo">
+                            <div class="card-content">
+                                <div class="card-body">
+                                    <div class="media d-flex">
+                                        <div class="media-body text-left">
+                                            <h3 class="danger" id="personal-loans-count">Loading...</h3>
+                                            <h6 style="margin-top: 10px; font-weight:bold"> Personal Loans<br><br></h6>
+                                        </div>
+                                        <div>
+                                            <img class="" src="{% static 'app-assets/images/icons/personalloans.svg' %}"  width="50px" alt="logo">
+                                        </div>
                                     </div>
                                 </div>
-            
                             </div>
-                        </div>
+                        </a>
                     </div>
-                </a>
-                </div>  </div>  </div>
-         
-            <!--/ eCommerce statistic -->
+                </div>
+            </div>
+        </div>
 
-
-
-<!--/ Basic Horizontal Timeline -->
-      </div>
+        <!--/ eCommerce statistic -->
     </div>
-  </div>
-  <!-- END: Content-->
-  {% include 'partials/dashboard/footer.html' %}
+</div>
+<!-- END: Content-->
+{% include 'partials/dashboard/footer.html' %}
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: "{% url 'stats' %}",
+            type: "GET",
+            success: function(response) {
+                if (response.status === 200) {
+                    $('#customer-count').text(response.data.customer_count);
+                    $('#personal-loans-count').text(response.data.personal_loan_count);
+                    // Populate other counts similarly
+                    // $('#target-savings-count').text(response.data.target_savings_count); // Add if available
+                    // $('#corporate-loans-count').text(response.data.corporate_loans_count); // Add if available
+                    // $('#lease-financing-count').text(response.data.lease_financing_count); // Add if available
+                } else {
+                    alert('Failed to fetch statistics');
+                }
+            },
+            error: function() {
+                alert('Error fetching statistics');
+            }
+        });
+    });
+</script>
 {% endblock content %}
-

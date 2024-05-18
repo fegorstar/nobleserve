@@ -1,0 +1,469 @@
+{% extends "base2.html" %}  
+{% load static %}
+{% block title %} My Personal Loans {% endblock %}
+{% load widget_tweaks %}
+{% block content %}
+{% include 'partials/dashboard/header.html' %}
+{% include 'partials/dashboard/sidebar.html' %}
+
+<div class="app-content content">
+    <div class="content-overlay"></div>
+    <div class="content-wrapper">
+        <div class="content-header row"></div>
+        <div class="content-body">
+            <div class="row">
+                <div id="recent-transactions" class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Recent Transactions</h4>
+                            <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
+                            <div class="heading-elements" style="display: flex; justify-content: flex-end; align-items: center;">
+                              <ul class="list-inline mb-0" style="list-style: none; padding: 0; margin: 0;">
+                                  <li>
+                                      <a class="btn btn-danger box-shadow-2 round btn-min-width" 
+                                         href="{% url 'addpersonalloan' %}" 
+                                         style="display: inline-block; text-align: center; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                          New Personal Loan Request
+                                      </a>
+                                  </li>
+                              </ul>
+                          </div>
+                        </div> <hr/>
+
+                        <div class="card-content">                
+                            <div class="table-responsive">
+                                <div id="loader" style="display: none; text-align: center; padding: 20px;">
+                                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                                </div>
+                                <table id="personal-loans-table" class="table table-hover table-bordered table-xl mb-0" style="display: none;">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Transaction ID</th>                                
+                                            <th>Purpose of Loan</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable will be populated here -->
+                                    </tbody>
+                                </table>
+                                <div id="no-records-message" style="display: none; text-align: center; padding: 20px;">
+                                    No records found.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Personal Loan Modal -->
+<div class="modal fade text-left" id="viewPersonalLoanModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel1">Personal Loan Details</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Transaction ID:</strong> <span id="loanTransactionId"></span></p>
+        <p><strong>Purpose of Loan:</strong> <span id="loanPurpose"></span></p>
+        <p><strong>Amount:</strong> <span id="loanAmount"></span></p>
+      
+        <p><strong>Sex:</strong> <span id="loanSex"></span></p>
+        <p><strong>Date of Birth:</strong> <span id="loanDob"></span></p>
+        <p><strong>Address:</strong> <span id="loanAddress"></span></p>
+        <p><strong>Occupation:</strong> <span id="loanOccupation"></span></p>
+        <p><strong>Duration:</strong> <span id="loanDuration"></span></p>
+       
+        <p><strong>Date Created:</strong> <span id="loanDateCreated"></span></p>
+        <p><strong>Status:</strong> <span id="loanStatus"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% include 'partials/dashboard/footer.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+  $(document).ready(function() {
+    $('#loader').show();
+
+    $.ajax({
+        type: 'GET',
+        url: '{% url "profile-detail" %}',
+        success: function(response) {
+            var profile = response.profile;
+            $('#user-first-name').text('Welcome, ' + profile.first_name);
+            var profileImage = profile.profile_picture;
+            if (profileImage) {
+                $('#user-profile-image').attr('src', profileImage);
+            } else {
+                $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+            }
+            fetchPersonalLoans(profile.id);
+            // Pass userId to viewPersonalLoan function when loading page
+            $('.view-loan').data('userId', profile.id);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+});
+
+function fetchPersonalLoans(userId) {
+    $.ajax({
+        type: 'GET',
+        url: '/customers/mypersonalloans/' + userId + '/',
+        success: function(response) {
+            var loans = response.data.loans;
+            var tableBody = $('#personal-loans-table tbody');
+            tableBody.empty();
+        
+            if (loans.length > 0) {
+                loans.forEach(function(loan) {
+                    var row = $('<tr>');
+                    row.append(`
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-primary" data-toggle="dropdown">
+                                    Action <i class="ft-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                  <a class="dropdown-item view-loan" href="#" data-toggle="modal" data-target="#viewPersonalLoanModal" data-id="${loan.transaction_id}">View</a>
+                                  <a class="dropdown-item edit-loan" href="#" data-toggle="modal" data-target="#editPersonalLoanModal" data-id="${loan.transaction_id}">Edit</a>          <a class="dropdown-item delete-loan" href="#" data-id="${loan.transaction_id}">Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    `);
+                    row.append('<td>' + loan.transaction_id + '</td>');
+                    row.append('<td>' + loan.purpose_of_loan + '</td>');
+                    row.append('<td>' + loan.amount + '</td>');
+                    row.append('<td><span class="badge badge-' + getBadgeColor(loan.status) + '">' + loan.status + '</span></td>');
+                    row.append('<td>' + formatDate(loan.created_at) + '</td>');
+                    tableBody.append(row);
+                });
+
+                $('#personal-loans-table').DataTable({
+                    "paging": true,
+                    "pageLength": 10,
+                    "lengthMenu": [10, 25, 50, 100],
+                    "searching": true
+                });
+
+                $('#personal-loans-table').show();
+            } else {
+                $('#no-records-message').show();
+            }
+            $('#loader').hide();
+        },
+        
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+}
+
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function getBadgeColor(status) {
+    switch (status) {
+        case 'Pending':
+            return 'warning';
+        case 'Processing':
+            return 'primary';
+        case 'Declined':
+            return 'danger';
+        case 'Paid':
+            return 'success';
+        default:
+            return 'secondary';
+    }
+}
+
+$(document).on('click', '.view-loan', function(event) {
+  event.preventDefault();
+  var loanId = $(this).data('id');
+  viewPersonalLoan(loanId); // No need to pass userId here
+});
+
+function viewPersonalLoan(loanId) {
+  // Fetch user details first
+  $.ajax({
+      type: 'GET',
+      url: '{% url "profile-detail" %}',
+      success: function(response) {
+          var userId = response.profile.id; // Get userId from the fetched user details
+          // Now, userId is available here, proceed with fetching loan details
+          $.ajax({
+              type: 'GET',
+              url: '/customers/mypersonalloan/' + userId + '/' + loanId + '/',
+              success: function(response) {
+                  var loan = response.data;
+                  // Populate modal fields with loan details
+                  $('#loanTransactionId').text(loan.transaction_id);
+                  $('#loanPurpose').text(loan.purpose_of_loan);
+                  $('#loanAmount').text(loan.amount);
+                  // Set badge color based on status
+                  var badgeColor = getBadgeColor(loan.status);
+                  $('#loanStatus').text(loan.status).removeClass().addClass('badge badge-' + badgeColor);
+                  $('#loanSex').text(loan.sex); // Populate sex
+                  $('#loanDob').text(loan.dob); // Populate date of birth
+                  $('#loanAddress').text(loan.address);
+                  $('#loanOccupation').text(loan.occupation);
+                  $('#loanDuration').text(loan.duration); // Populate duration
+                  $('#loanDateCreated').text(formatDate(loan.created_at));
+                  // Show the modal
+                  $('#viewPersonalLoanModal').modal('show');
+              },
+              error: function(xhr, textStatus, errorThrown) {
+                  console.error(xhr.responseText);
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: 'Unable to fetch loan details. Please try again later.'
+                  });
+              }
+          });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+          console.error(xhr.responseText);
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Unable to fetch user details. Please try again later.'
+          });
+      }
+  });
+}
+</script>
+
+<!-- View Personal Loan Modal -->
+<div class="modal fade text-left" id="editPersonalLoanModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel2">Edit Personal Loan</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="editPersonalLoanForm">
+        <div class="modal-body">
+          <input type="hidden" id="editTransactionId" name="transactionId">
+          <input type="hidden" id="editStatus" name="status">
+          <div class="form-group">
+            <label for="editPurposeOfLoan">Purpose of Loan</label>
+            <input type="text" class="form-control" id="editPurposeOfLoan" name="purposeOfLoan">
+          </div>
+          <div class="form-group">
+            <label for="editAmount">Amount</label>
+            <input type="number" class="form-control" id="editAmount" name="amount">
+          </div>
+          <div class="form-group">
+            <label for="editSex">Sex</label>
+            <select class="form-control" id="editSex" name="sex" class="form-control form-select" data-placeholder="Select Gender">
+              <option value="" selected>Select Gender</option>
+               <option value="Male">Male</option>
+              <option value="Female">Female</option>
+          </select>
+        </div>
+          <div class="form-group">
+            <label for="editDob">Date of Birth</label>
+            <input type="date" class="form-control" id="editDob" name="dob">
+          </div>
+          <div class="form-group">
+            <label for="editAddress">Address</label>
+            <input type="text" class="form-control" id="editAddress" name="address">
+          </div>
+          <div class="form-group">
+            <label for="editOccupation">Occupation</label>
+            <input type="text" class="form-control" id="editOccupation" name="occupation">
+          </div>
+          <div class="form-group">
+            <label for="editDuration">Duration</label>
+            <input type="date" class="form-control" id="editDuration" name="duration">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Edit Personal Loan Modal
+$(document).on('click', '.edit-loan', function(event) {
+  event.preventDefault();
+  var loanId = $(this).data('id');
+  // Fetch loan details
+  $.ajax({
+    type: 'GET',
+    url: '{% url "profile-detail" %}',
+    success: function(response) {
+      var userId = response.profile.id; // Get userId from the fetched user details
+      // Now, userId is available here, proceed with fetching loan details
+      $.ajax({
+        type: 'GET',
+        url: '/customers/mypersonalloan/' + userId + '/' + loanId + '/',
+        success: function(response) {
+          var loan = response.data;
+          // Populate modal fields with loan details
+          $('#editTransactionId').val(loan.transaction_id);
+          $('#editStatus').val(loan.status); // Populate status
+          $('#editPurposeOfLoan').val(loan.purpose_of_loan);
+          $('#editAmount').val(loan.amount);
+          $('#editSex').val(loan.sex); // Populate sex
+          $('#editDob').val(loan.dob); // Populate date of birth
+          $('#editAddress').val(loan.address);
+          $('#editOccupation').val(loan.occupation);
+          $('#editDuration').val(loan.duration); // Populate duration
+          $('#editPersonalLoanModal').modal('show');
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          console.error(xhr.responseText);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Unable to fetch loan details. Please try again later.'
+          });
+        }
+      });
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      console.error(xhr.responseText);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Unable to fetch user details. Please try again later.'
+      });
+    }
+  });
+});
+
+// Update Personal Loan
+$('#editPersonalLoanForm').submit(function(event) {
+  event.preventDefault();
+
+  // Gather data from form fields
+  var formData = {
+    purpose_of_loan: $('#editPurposeOfLoan').val(),
+    amount: $('#editAmount').val(),
+    sex: $('#editSex').val(),
+    dob: $('#editDob').val(),
+    address: $('#editAddress').val(),
+    occupation: $('#editOccupation').val(),
+    duration: $('#editDuration').val()
+  };
+
+  var loanId = $('#editTransactionId').val(); // Corrected to match the input field
+
+  // Check if loanId is not empty
+  if (loanId) {
+    $.ajax({
+      type: 'PUT',
+      url: '/customers/personal-loans/update/' + loanId + '/', // Ensure the URL is correct
+      data: formData, // Pass form data directly
+      success: function(response) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Personal loan updated successfully.'
+        }).then(function() {
+          $('#editPersonalLoanModal').modal('hide');
+          location.reload();
+          // Optionally, you can reload the page or update the UI as needed
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update personal loan. Please try again later.'
+        });
+      }
+    });
+  } else {
+    // Handle the case when loanId is empty
+    console.error('Loan ID is empty');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Loan ID is empty. Unable to update personal loan.'
+    });
+  }
+});
+
+
+// Delete Personal Loan
+$(document).on('click', '.delete-loan', function(event) {
+  event.preventDefault();
+  var loanId = $(this).data('id');
+  // Confirm deletion
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You will not be able to recover this personal loan!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'No, cancel!',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Proceed with deletion
+      deletePersonalLoan(loanId);
+    }
+  });
+});
+
+function deletePersonalLoan(loanId) {
+  // Make AJAX request to delete the personal loan
+  $.ajax({
+    type: 'DELETE',
+    url: '/customers/personal-loans/delete/' + loanId + '/',
+    success: function(response) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Personal loan deleted successfully.'
+      }).then(function() {
+        // Optionally, you can reload the page or update the UI as needed
+        // For example, remove the deleted row from the table
+        $('tr[data-id="' + loanId + '"]').remove();
+          location.reload();
+      });
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      console.error(xhr.responseText);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete personal loan. Please try again later.'
+      });
+    }
+  });
+}
+
+</script>
+{% endblock content %}

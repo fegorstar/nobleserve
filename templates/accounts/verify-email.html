@@ -1,0 +1,77 @@
+{% extends "base.html" %}  
+{% load static %}
+{% block title %} Enter Code {% endblock %}
+
+{% block content %}
+{% include 'partials/preloader.html' %}
+
+<!--wrapper-->
+<div class="wrapper">
+    <div class="section-authentication-cover">
+        <div class="row g-0">
+            <div class="col-12 col-xl-7 col-xxl-8 auth-cover-left">
+                <div class="hero-content style1" id="desktop">
+                    <a href="{% url 'home' %}">
+                        <img class="logo-dark" src="{% static 'assets/img/logo_white.svg' %}" width="130px" alt="logo">
+                    </a>
+                    <h1>You are welcome to <br>Nobleserve Finance!</h1>
+                    <p>We're excited to help you secure the funds you need. <br/> To get started, please complete the sign-up process <br/> below and create your loan account.</p>
+                </div>
+            </div>
+            <div class="col-12 col-xl-5 col-xxl-4 auth-cover-right align-items-center justify-content-center">
+                <div class="card rounded-0 m-3 shadow-none bg-transparent mb-0" style="border:0px">
+                    <div class="card-body">
+                        <div class="text-left mb-4">
+                            <a href="{% url 'login' %}" class="back-button">
+                                <svg width="50" height="50" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M23.7143 38L25.2143 36.5L17.7858 29.0714H42.2858V26.9286H17.7858L25.2143 19.5L23.7143 18L13.7143 28L23.7143 38Z" fill="#101828"/>
+                                    <rect x="0.5" y="0.5" width="55" height="55" rx="27.5" stroke="#101828"/>
+                                </svg>
+                            </a>
+                            <h4>Account Verification</h4>
+                            <p>We sent a code to <b><span class="verification-email-placeholder"></span></b>. 
+                                Enter it here to prove it is really you.
+                            </p>
+                        </div>
+                        <form id="enter-code-form" class="row g-3">
+                            {% csrf_token %}
+                            <div class="col-12">
+                                <table style="border-collapse: separate; border-spacing: 10px;">
+                                  <tr>
+                                    <td><input type="text" class="form-control code-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px;" data-index="0"></td>
+                                    <td><input type="text" class="form-control code-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px;" data-index="1"></td>
+                                    <td><input type="text" class="form-control code-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px;" data-index="2"></td>
+                                    <td><input type="text" class="form-control code-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px;" data-index="3"></td>
+                                    <td><input type="text" class="form-control code-input" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px;" data-index="4"></td>
+                                  </tr>
+                                </table>
+                            </div>
+                            <div class="col-12 text-left">
+                                <a href="#" class="resend-code">Having trouble? Resend code</a>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn style1" id="submit-code-btn">
+                                        Continue
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<script>
+  // Retrieve verification email from local storage and update HTML content
+  document.addEventListener('DOMContentLoaded', function() {
+    const verificationEmail = localStorage.getItem('verificationEmail');
+    if (verificationEmail) {
+      document.querySelector('.verification-email-placeholder').textContent = verificationEmail;
+    }
+  });
+</script>
