@@ -294,42 +294,42 @@ function getBadgeColor(status) {
     }
 }
 $(document).on('click', '.view-saving', function(event) {
-    event.preventDefault();
-    var transactionId = $(this).data('id');
-    viewTargetSaving(encodeURIComponent(transactionId));
-  });
-  
-  function viewTargetSaving(transactionId) {
-    $.ajax({
+  event.preventDefault();
+  var transactionId = $(this).data('id');
+  viewTargetSaving(transactionId);
+});
+ 
+function viewTargetSaving(transactionId) {
+  $.ajax({
       type: 'GET',
       url: '{% url "profile-detail" %}',
       success: function(response) {
-        var userId = response.profile.id;
-        $.ajax({
-          type: 'GET',
-          url: '/customers/target-saving/' + userId + '/' + transactionId + '/',
-          success: function(response) {
-            var saving = response.data;
-            $('#savingTransactionId').text(saving.transaction_id);
-            $('#savingCustomerName').text(saving.customer_name);
-            $('#savingAmount').text(saving.amount);
-            $('#savingStartDate').text(formatDate(saving.start_save));
-            $('#savingSaveBy').text(formatDate(saving.save_by));
-            var badgeColor = getBadgeColor(saving.status);
-            $('#savingStatus').text(saving.status).removeClass().addClass('badge badge-' + badgeColor);
-            $('#savingDateCreated').text(formatDate(saving.created_at));
-            $('#viewTargetSavingModal').modal('show');
-          },
-          error: function(xhr, textStatus, errorThrown) {
-            console.error(xhr.responseText);
-          }
-        });
+          var userId = response.profile.id;
+          $.ajax({
+              type: 'GET',
+              url: '/customers/target-saving/' + userId + '/' + encodeURIComponent(transactionId) + '/',
+              success: function(response) {
+                  var saving = response.data;
+                  $('#savingTransactionId').text(saving.transaction_id);
+                  $('#savingCustomerName').text(saving.customer_name);
+                  $('#savingAmount').text(saving.amount);
+                  $('#savingStartDate').text(formatDate(saving.start_save));
+                  $('#savingSaveBy').text(formatDate(saving.save_by));
+                  var badgeColor = getBadgeColor(saving.status);
+                  $('#savingStatus').text(saving.status).removeClass().addClass('badge badge-' + badgeColor);
+                  $('#savingDateCreated').text(formatDate(saving.created_at));
+                  $('#viewTargetSavingModal').modal('show');
+              },
+              error: function(xhr, textStatus, errorThrown) {
+                  console.error("Error in fetching target saving details: ", xhr.responseText);
+              }
+          });
       },
       error: function(xhr, textStatus, errorThrown) {
-        console.error(xhr.responseText);
+          console.error("Error in fetching profile details: ", xhr.responseText);
       }
-    });
-  }
+  });
+}
 </script>
 
 

@@ -85,7 +85,7 @@ class TargetSaving(models.Model):
         length=12,
         max_length=40,
         prefix="NBL_",
-        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-",
     )
 
     created_by = models.ForeignKey(
@@ -123,7 +123,7 @@ class LeaseFinancing(models.Model):
         length=12,
         max_length=40,
         prefix="NBL_",
-        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-",
     )
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE)  # customer name
@@ -161,7 +161,7 @@ class CorporateLoan(models.Model):
         length=12,
         max_length=40,
         prefix="NBL_",
-        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-",
     )
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE)  # customer name
