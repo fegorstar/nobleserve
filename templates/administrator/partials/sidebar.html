@@ -1,0 +1,39 @@
+{% load static %}
+<aside class="app-navbar">
+    <!-- begin sidebar-nav -->
+    <div class="sidebar-nav scrollbar scroll_dark">
+        <ul class="metismenu " id="sidebarNav" style="margin-top:10px">
+            <li><a href="{% url 'admin-dashboard' %}" aria-expanded="false"></a></li>
+            <li class="active">
+                <a class="" href="{% url 'admin-dashboard' %}" aria-expanded="false">
+                    <i class="nav-icon ti ti-home"></i>
+                    <span class="nav-title">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a class="has-arrow" href="javascript:void(0)" aria-expanded="false">
+                    <i class="nav-icon ti ti-briefcase"></i>
+                    <span class="nav-title">Loan Management</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a  href="{% url 'admin-dashboard' %}">All Customers</a></li>
+                    <li><a  href="{% url 'loanrequests' %}">Loan Requests</a></li>
+                    <li><a  href="{% url 'approvedloans' %}">Approved Loans</a></li>
+                    <li><a  href="{% url 'declinedloans' %}">Declined Loans</a></li>
+                </ul>
+            </li>
+            <li>
+                <a class="has-arrow" href="javascript:void(0)" aria-expanded="false">
+                    <i class="nav-icon ti ti-wallet"></i>
+                    <span class="nav-title">Savings</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href='calendar-full.html'>Target Savings</a></li>
+                    <li><a href='calendar-list.html'>Investment Savings</a></li>
+                </ul>
+            </li>
+        </ul>
+        
+    </div>
+    <!-- end sidebar-nav -->
+</aside>

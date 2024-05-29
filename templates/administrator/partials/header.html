@@ -1,0 +1,199 @@
+{% load static %}
+<!-- begin app-header -->
+<header class="app-header top-bar">
+    <!-- begin navbar -->
+    <nav class="navbar navbar-expand-md">
+        <!-- begin navbar-header -->
+        <div class="navbar-header d-flex align-items-center" style="padding-bottom: 60px; padding-top: 80px;">
+            <a href="javascript:void:(0)" class="mobile-toggle"><i class="ti ti-align-right"></i></a>
+            <a class="navbar-brand" href="index.html">
+                <img src="{% static 'admindashboardassets/img/Noblepaylogo1.jpg' %}" class="img-fluid" alt="logo" style="padding-top: 15px;" />
+                <img src="{% static 'admindashboardassets/img/Noblepaylogo1.jpg' %}" class="img-fluid logo-mobile" alt="logo" />
+            </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="ti ti-align-left"></i>
+        </button>
+        <!-- end navbar-header -->
+        <!-- begin navigation -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="navigation d-flex">
+                <ul class="navbar-nav nav-left">
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link sidebar-toggle">
+                            <i class="ti ti-align-right"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link sidebar-toggle">
+                            <h3>Dashboard</h3>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav nav-right ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navbarDropdown3" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fe fe-bell"></i>
+                            <span class="notify">
+                                <span class="blink"></span>
+                                <span class="dot"></span>
+                            </span>
+                        </a>
+                        <div class="dropdown-menu extended animated fadeIn" aria-labelledby="navbarDropdown">
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown user-profile">
+                        <a href="javascript:void(0)" class="nav-link dropdown-toggle " id="navbarDropdown4" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="{% static 'admindashboardassets/img/avtar/02.jpg' %}" alt="avtar-img">
+                            <span class="bg-success user-status"></span>
+                        </a>
+                        <div class="dropdown-menu animated fadeIn" aria-labelledby="navbarDropdown">
+                            <div class="bg-gradient px-4 py-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="mr-1">
+                                        <h4 class="text-white mb-0">Alice Williams</h4>
+                                        <small class="text-white">Henry@example.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <a class="dropdown-item d-flex nav-link logout" href="javascript:void(0)">
+                                    <i class="fa fa-user pr-2 text-success"></i> Profile
+                                </a>
+                                <a class="dropdown-item d-flex nav-link logout" href="javascript:void(0)">
+                                    <i class="ti ti-power-off pr-2 text-danger"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end navigation -->
+    </nav>
+    <!-- end navbar -->
+</header>
+<!-- end app-header -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Your JavaScript code goes here
+        // Function to check if user is authenticated
+        function checkAuthentication() {
+            // Retrieve access token from local storage
+            var accessToken = localStorage.getItem('access_token');
+        
+            // If access token is missing, redirect to login page
+            if (!accessToken) {
+                window.location.href = '{% url "admin-login" %}';
+                return false;
+            }
+            
+            // Check if access token is expired
+            // You need to implement a function to check token expiration based on your authentication mechanism
+            if (isTokenExpired(accessToken)) {
+                // If token is expired, log the user out
+                window.location.href = '{% url "admin-login" %}';
+                return false;
+            }
+        
+            return true;
+        }
+        
+        // Check authentication status when the document is ready
+        if (!checkAuthentication()) {
+            // If not authenticated, prevent rendering of content
+            // (The body is already hidden by default)
+            return;
+        } else {
+            // If authenticated, show the content
+            $('body').show();
+        }
+        
+        // Function to fetch user details and update header
+        // Function to fetch user details and update header
+        function fetchUserDetails() {
+            // Check if user is authenticated
+            if (!checkAuthentication()) {
+                return;
+            }
+        
+            // Retrieve access token from local storage
+            var accessToken = localStorage.getItem('access_token');
+        
+            // Set authorization header with access token
+            $.ajaxSetup({
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            });
+        
+            // Fetch user details using the access token
+            $.ajax({
+                type: 'GET',
+                url: '{% url "profile-detail" %}',
+                success: function(response) {
+                    // Access the profile data correctly
+                    var profile = response.profile;
+        
+                    // Update user's first name in the header
+                    $('#user-first-name').text('Welcome, ' + profile.first_name);
+                    // Update user's profile image in the header
+                    var profileImage = profile.profile_picture;
+                    if (profileImage) {
+                        $('#user-profile-image').attr('src', profileImage);
+                    } else {
+                        // If profile image is not available, use default image
+                        $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+                    }
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    // Handle error
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+        
+        // Call fetchUserDetails function when the document is ready
+        fetchUserDetails();
+        
+        // Function to check if access token is expired
+        function isTokenExpired(accessToken) {
+            // Extract the payload part of the token
+            var payloadPart = accessToken.split('.')[1];
+            
+            // Decode the payload using base64 decoding
+            var decodedPayload = decodeURIComponent(atob(payloadPart).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        
+            // Parse the decoded payload as JSON
+            var payload
+            = JSON.parse(decodedPayload);
+            
+            // Get the expiration time from the payload
+            var expirationTime = payload.exp;
+            
+            // Get the current time in seconds
+            var currentTime = Math.floor(Date.now() / 1000);
+            
+            // Check if the current time is greater than or equal to the expiration time
+            // If the token has expired, return true; otherwise, return false
+            return currentTime >= expirationTime;
+        }
+        
+        // Logout function
+        function logoutUser() {
+            // Clear localStorage
+            localStorage.clear();
+            // Redirect to login page
+            window.location.href = '{% url "admin-login" %}';
+        }
+        
+        // Logout user when logout button is clicked
+        $('.nav-link.logout').on('click', function() {
+            logoutUser();
+        });
+    });
+</script>

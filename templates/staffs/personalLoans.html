@@ -31,7 +31,7 @@
                                             <th>Action</th>
                                             <th>Transaction ID</th>  
                                             <th>CustomerName</th>  
-                                            <th>Purpose of Loan</th>
+                                          
                                             <th>Amount</th>
                                             <th>Status</th>
                                             <th>Date Created</th>
@@ -118,7 +118,7 @@
 function fetchPersonalLoans() {
     $.ajax({
         type: 'GET',
-        url: '/customers/allpersonal-loans/',
+        url: '/staffs/allpersonal-loans/',
         success: function(response) {
             var loans = response.data.loans;
             var tableBody = $('#personal-loans-table tbody');
@@ -136,7 +136,7 @@ function fetchPersonalLoans() {
                                 <div class="dropdown-menu" aria-labelledby="actionDropdown">
                                     <a class="dropdown-item view-loan" href="#" data-toggle="modal" data-target="#viewPersonalLoanModal" data-id="${loan.transaction_id}" data-user-id="${loan.user_id}">View</a>
                                     <a class="dropdown-item edit-loan" href="#" data-toggle="modal" data-target="#editPersonalLoanModal" data-id="${loan.transaction_id}" data-user-id="${loan.user_id}">Edit</a>
-                                    <a class="dropdown-item perform-approval" href="#" data-toggle="modal" data-target="#performApprovalModal" data-id="${loan.transaction_id}">Perform Approval</a>
+                                    <a class="dropdown-item perform-approval" href="#" data-toggle="modal" data-target="#performApprovalModal" data-id="${loan.transaction_id}">Update Status</a>
                                     <a class="dropdown-item delete-loan" href="#" data-id="${loan.transaction_id}">Delete</a>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@ function fetchPersonalLoans() {
                     `);
                     row.append('<td>' + loan.transaction_id + '</td>');
                     row.append('<td>' + loan.customer_name + '</td>');
-                    row.append('<td>' + loan.purpose_of_loan + '</td>');
+                   
                     row.append('<td>' + loan.amount + '</td>');
                     row.append('<td><span class="badge badge-' + getBadgeColor(loan.status) + '">' + loan.status + '</span></td>');
                     row.append('<td>' + formatDate(loan.created_at) + '</td>');
@@ -201,10 +201,12 @@ function getBadgeColor(status) {
 
 
 function viewPersonalLoan(loanId, userId) {
+  // URL encode the transaction_id
+  var encodedloanId = encodeURIComponent(loanId);
     // Fetch user details first
     $.ajax({
         type: 'GET',
-        url: '/customers/mypersonalloan/' + userId + '/' + loanId + '/',
+        url: '/customers/mypersonalloan/' + userId + '/' + encodedloanId + '/',
         success: function(response) {
             var loan = response.data;
             // Populate modal fields with loan details
@@ -259,7 +261,7 @@ function viewPersonalLoan(loanId, userId) {
           </div>
           <div class="form-group">
             <label for="editSex">Sex</label>
-            <select class="form-control form-select" id="editSex" name="sex" class="form-control form-select" data-placeholder="Select Gender">
+            <select class="form-control form-select" id="editSex" name="sex"  data-placeholder="Select Gender">
               <option value="" selected>Select Gender</option>
                <option value="Male">Male</option>
               <option value="Female">Female</option>
@@ -292,7 +294,7 @@ function viewPersonalLoan(loanId, userId) {
 </div>
 
 
-<!-- Perform approal of Loan Modal -->
+<!-- Perform approval of Loan Modal -->
 <div class="modal fade" id="performApprovalModal" tabindex="-1" role="dialog" aria-labelledby="performApprovalModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -330,11 +332,12 @@ function viewPersonalLoan(loanId, userId) {
 $(document).on('click', '.edit-loan', function(event) {
     event.preventDefault();
     var loanId = $(this).data('id');
+    var encodedloanId = encodeURIComponent(loanId);
     var userId = $(this).data('user-id'); // Get the user ID from the link's data attributes
     // Fetch loan details
     $.ajax({
         type: 'GET',
-        url: '/customers/mypersonalloan/' + userId + '/' + loanId + '/', // Use the user ID from the link
+        url: '/customers/mypersonalloan/' + userId + '/' + encodedloanId + '/', // Use the user ID from the link
         success: function(response) {
             var loan = response.data;
             // Populate modal fields with loan details
@@ -377,12 +380,14 @@ $('#editPersonalLoanForm').submit(function(event) {
   };
 
   var loanId = $('#editTransactionId').val(); // Corrected to match the input field
+  var encodedloanId = encodeURIComponent(loanId);
+  
 
   // Check if loanId is not empty
   if (loanId) {
     $.ajax({
       type: 'PUT',
-      url: '/customers/personal-loans/update/' + loanId + '/', // Ensure the URL is correct
+      url: '/customers/personal-loans/update/' + encodedloanId + '/', // Ensure the URL is correct
       data: formData, // Pass form data directly
       success: function(response) {
         Swal.fire({
@@ -438,10 +443,11 @@ $(document).on('click', '.delete-loan', function(event) {
 });
 
 function deletePersonalLoan(loanId) {
+  var encodedloanId = encodeURIComponent(loanId);
   // Make AJAX request to delete the personal loan
   $.ajax({
     type: 'DELETE',
-    url: '/customers/personal-loans/delete/' + loanId + '/',
+    url: '/customers/personal-loans/delete/' + encodedloanId + '/',
     success: function(response) {
       Swal.fire({
         icon: 'success',
@@ -476,12 +482,13 @@ $(document).on('click', '.perform-approval', function(event) {
   
   $('#performApprovalBtn').click(function() {
     var loanId = $('#performApprovalForm').data('loan-id');
+    var encodedloanId = encodeURIComponent(loanId);
     var newStatus = $('#approvalStatus').val();
   
     // Make AJAX request to update loan status
     $.ajax({
       type: 'PATCH',
-      url: '/customers/personal-loans/update-status/' + loanId + '/',
+      url: '/customers/personal-loans/update-status/' + encodedloanId + '/',
       data: JSON.stringify({ status: newStatus }),
       contentType: 'application/json',
       success: function(response) {

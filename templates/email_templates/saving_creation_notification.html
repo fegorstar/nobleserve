@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Target Saving Created!</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #F2F3F8;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" bgcolor="#F2F3F8" style="padding: 20px;">
+                <table width="600" border="0" cellspacing="0" cellpadding="0">
+                    <!-- Header -->
+                    <tr>
+                        <td bgcolor="#F2F3F8" style="padding: 20px;">
+                            <img src="{{ absolute_static_url }}assets/img/nobleservemainlogo.png" alt="Nobleservie Finance Logo" style="max-width: 80px; display: block;">
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td bgcolor="#FFFFFF" style="border-radius: 20px; padding: 30px; color: #384860;">
+                            <h1 style="font-family: Gilroy; font-size: 20px; font-weight: 600; line-height: 24px; text-align: left;">New Target Saving Created!</h1>
+                            <p>Hi Admin,</p>
+
+                            <p>A new target saving has been created:</p>
+
+                          <ul style="text-align:left;">                                <li><strong>User:</strong> {{ user_full_name }}</li>
+                                <li><strong>User Email:</strong> {{ user_email }}</li>
+                                <li><strong>Saving Details:</strong></li>
+                                <ul style="text-align:left;">
+                                    <li><strong>Transaction ID:</strong> {{ saving_details.transaction_id }}</li>
+                                    <li><strong>Created By:</strong> {{ saving_details.created_by }}</li>
+                                    <li><strong>Amount:</strong> {{ saving_details.amount }}</li>
+                                    <li><strong>Start Save:</strong> {{ saving_details.start_save }}</li>
+                                    <li><strong>Save By:</strong> {{ saving_details.save_by }}</li>
+                                    <li><strong>Status:</strong> {{ saving_details.status }}</li>
+                                    <li><strong>Created At:</strong> {{ saving_details.created_at }}</li>
+                                    <li><strong>Modified At:</strong> {{ saving_details.modified_at }}</li>
+                                </ul>
+                            </ul>
+
+                            <div style="text-align: left;">
+                                <a href="https://www.nobleservefinance.com/auth/login/" style="display: inline-block; padding: 10px 20px; color: white; background: linear-gradient(313.78deg, #2855AE -3.15%, #7292CF 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)); border-radius: 5px; text-decoration: none; font-family: Metropolis; font-size: 14px; font-weight: 600; line-height: 24px; text-align: left;">Admin Login</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" bgcolor="#F2F3F8" style="padding: 20px;">
+                            <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;">199a Jide Oki street,Victoria Island, Lagos State.</p>
+                            <div style="text-align: center;">
+                                <!-- Replace icons with your preferred ones -->
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/twitter.png" alt="Twitter" height="20" width="20"></a>
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/facebook.png" alt="Facebook" height="20" width="20"></a>
+                                <a href="#"><img src="{{ absolute_static_url }}assets/img/socials/instagram.png" alt="Instagram" height="20" width="20"></a>
+                            </div>
+                            <p style="font-family: Gilroy; font-size: 18px; font-weight: 400; line-height: 22.4px; letter-spacing: 0.2px; text-align: center;"><a href="#" style="color: #888; text-decoration: underline;">Unsubscribe</a> from our emails.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

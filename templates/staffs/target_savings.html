@@ -1,263 +1,485 @@
-
 {% extends "base2.html" %}  
 {% load static %}
-{% block title %} Target Savings{% endblock %}
+{% block title %} My Target Savings {% endblock %}
 {% load widget_tweaks %}
-
-
 {% block content %}
-
-
 {% include 'partials/dashboard/header.html' %}
 {% include 'partials/dashboard/sidebar.html' %}
 
- <!-- BEGIN: Content-->
- <div class="app-content content">
+<div class="app-content content">
     <div class="content-overlay"></div>
     <div class="content-wrapper">
-      <div class="content-header row">
-      </div>
-      <div class="content-body"><!-- eCommerce statistic -->
+        <div class="content-header row"></div>
+        <div class="content-body">
+            <div class="row">
+                <div id="recent-transactions" class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Recent Target Savings</h4>
+                            <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
+                        </div> <hr/>
 
-<!-- Recent Transactions -->
-<div class="row">
-    <div id="recent-transactions" class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title" style="font-weight:bold">Target Savings</h4><hr>
-                <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
-               
-            </div>            
-            <div class="card-content"> 
-                <div class="card-body">
-                    <form>
-                        <h4 class="card-title text-center">Data Filter and Search </span></h4>
-            
-                        <div class="form-row">
-                            <div class="col-md-4 mb-3">
-                                <label>Transaction ID:</label>
-                                {% render_field  my_Filter.form.transaction_id class="form-control" placeholder="Trans ID"  %}
-                                           
-   
+                        <div class="card-content">                
+                            <div class="table-responsive">
+                                <div id="loader" style="display: none; text-align: center; padding: 20px;">
+                                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                                </div>
+                                <table id="target-savings-table" class="table table-hover table-bordered table-xl mb-0" style="display: none;">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Transaction ID</th>  
+                                            <th>Customer Name</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable will be populated here -->
+                                    </tbody>
+                                </table>
+                                <div id="no-records-message" style="display: none; text-align: center; padding: 20px;">
+                                    No records found.
+                                </div>
                             </div>
-                          
-                            <div class="col-md-3 mb-3">
-                                <label>Status:</label>
-                                {% render_field  my_Filter.form.status class="select2 form-control"  placeholder="Batch Number"  %}
-                            </div>
-                            <div class="col-md-5 mb-3">
-                                <label>Date:</label>
-                                {% render_field  my_Filter.form.created_at class="form-control" placeholder="Ref No"  %}
-                            </div>
-
-                            
-                            
-                        <button class="btn btn-primary" type="submit">Search</button>  
-                       
-                    </form>
+                        </div>
                     </div>
-                  
-                <div class="table-responsive " style="margin-top:20px">
-                   
-                    <table id="recent-orders" class="table table-hover table-bordered table-xl mb-0">
-                        <thead>
-                            <tr>
-                                <th>Action</th>
-                                <th class="border-top-0">Transaction ID</th> 
-                                <th class="border-top-0">Customer Name</th>                               
-                                <th class="border-top-0">Purpose of Loan</th>
-                                <th class="border-top-0">Amount</th>
-                             
-                                <th class="border-top-0">Status</th>
-                                <th class="border-top-0">Dated Created</th>
-                              
-                            </tr>
-                        </thead>
-                        <tbody  hx-trigger="load, loanListChanged from:body" hx-target="this">
-                            {% if page_obj %}
-                            {% for ploan in page_obj %}
-<tr id="ploan-{{ ploan.pk }}" class="job-row">
-<td>
-
-    
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-            Action
-        </button>
-        <div  class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <span class="dropdown-item">   
-                <a  href="">Approve</a>
-            </span>
-           
-            <span class="dropdown-item">   <a  href="">View</a>
-            </span>
-
-          
-            <span class="dropdown-item">     <a href="" data-bs-target="#deletejobModal{{job.pk}}" class="text-danger"  data-toggle="modal">Delete</a> 
-            </span>
-               
-        </div>
-    </div>
-
-</td>
-    <td>{{ploan.transaction_id}}</td>
-    <td>{{ploan.created_by.first_name}} {{ploan.created_by.last_name}}</td>
-    <td>{{ploan.purpose_of_loan}}</td>
-    <td>{{ploan.amount}}</td>
-
-    <td>{% if ploan.status == 'Pending' %}
-        <span class="badge badge-warning ">Pending</span>
-
-        {% elif ploan.status == 'Processing' %}
-        <span class="badge badge-primary ">Processing</span>
-
-      {% elif ploan.status == 'Declined' %}
-      <span class="badge badge-danger ">Declined</span>
-
-      {% elif ploan.status == 'Paid' %}
-      <span class="badge badge-success ">Paid</span>
-
-      {% else %}
-      <span class="badge badge-warning ">Pending</span>
-      {% endif %}</td>
-                        
-      
-      <td>{{ploan.created_at}}</td>
-                            </tr>
-
-
-                            {% endfor %}				
-                            
-                            {% else %}
-                            <table>
-                            <tbody>
-                            
-                                   <tr ><div class="col-md-12 text-center p-2">
-                                    <p class=" text-danger">No Transactions Found!</p>
-                                  </div></tr> 
-                            
-                            </tbody>
-                            </table>
-                            {% endif %}
-                            
-                            
-                                                                            
-                        </tbody>
-
-
-                        
-                    </table>      
                 </div>
-
-
-                
             </div>
-
-
-
         </div>
-
-        <div class="card-body">
-        <div class="pagination-contant">         
-            <!-- start pagination contant --> 
-          
-            Showing {{page_obj.number}} of {{ page_obj.paginator.num_pages }} out of {{all_targetSavings.count }} entries
-
-            {% if page_obj.has_other_pages %}
-                  <ul  id="border-pagination" class="pagination align-right float-right mr-auto"">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{page_obj.previous_page_number}}"><i class="fa fa-angle-left"></i></a>
-                        </li>
-                    {% else %}
-                      <li class="page-item disabled">
-                          <a class="page-link"><i class="fa fa-angle-left"></i></a>
-                      </li>
-                    {% endif %}
-
-                    {% for i in page_obj.paginator.page_range %}
-                      {% if page_obj.number == i %}
-                        <li class="page-item"><a class="page-link active" href="#">{{i}}</a></li>
-                      {% else %}
-                        <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
-                      {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{page_obj.next_page_number}}"><i class="fa fa-angle-right"></i></a>
-                        </li>
-                    {% else %}
-                      <li class="page-item disabled">
-                          <a class="page-link"><i class="fa fa-angle-right"></i></a>
-                      </li>
-                    {% endif %}
-
-                  </ul>
-                {% endif %}
-          
-         </div>  
-        </div>  
-    <!-- end pagination section -->
     </div>
-
 </div>
 
-
-    
-</div>
-<!--/ Recent Transactions -->
-
-
-
-<!--/ Basic Horizontal Timeline -->
+<!-- View Target Saving Modal -->
+<div class="modal fade text-left" id="viewTargetSavingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel1">Target Saving Details</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button> 
+      </div>
+      <div class="modal-body">
+        <p><strong>Transaction ID:</strong> <span id="savingTransactionId"></span></p>
+        <p><strong>Customer Name:</strong> <span id="savingCustomerName"></span></p>
+        <p><strong>Amount:</strong> <span id="savingAmount"></span></p>
+        <p><strong>Start Save:</strong> <span id="savingStartSave"></span></p>
+        <p><strong>Save By:</strong> <span id="savingSaveBy"></span></p>
+        <p><strong>Status:</strong> <span id="savingStatus"></span></p>
+        <p><strong>Date Created:</strong> <span id="savingDateCreated"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
-
-
-
-   <!-- Placeholder for the modal -->
-   <div id="modal" class="modal fade">
-    <div id="dialog" class="modal-dialog" hx-target="this"></div>
   </div>
-
-
-
-  <!-- Empty toast to show the message -->
-
-
-
-  <div class="toast-container position-absolute top-0 end-0 p-3" style="margin-top:60px">
-    <div id="toast" class="toast-content toast align-items-center bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div id="toast-body" class="toast-body p-1"  style="font-size:14px;" >
-
-            </div>
-         <button  type="button"  class="btn-close  btn-close-white width-200 me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-       
-        </div>
-
-    </div>
-
- <!-- end of toast to show the message -->
-
-
-
-
-
-    
 </div>
 
+<!-- Edit Target Saving Modal -->
+<div class="modal fade" id="editTargetSavingModal" tabindex="-1" role="dialog" aria-labelledby="editTargetSavingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTargetSavingModalLabel">Edit Target Saving</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Form for editing target saving details -->
+          <form id="editSavingForm">
+            <!-- Input fields for editing saving details -->
+            <div class="form-group">
+              <label for="editTransactionId">Transaction ID</label>
+              <input type="text" class="form-control" id="editTransactionId" name="transaction_id" value="NBL_#ElqXfmd~uLv" readonly>
+            </div>
+          
+            <div class="form-group">
+              <label for="editAmount">Amount</label>
+              <input type="text" class="form-control" id="editAmount" name="amount" value="90000">
+            </div>
+            <div class="form-group">
+              <label for="editStartSave">Start Save</label>
+              <input type="date" class="form-control" id="editStartSave" name="start_save" value="2024-05-28">
+            </div>
+            <div class="form-group">
+              <label for="editSaveBy">Save By</label>
+              <input type="date" class="form-control" id="editSaveBy" name="save_by" value="2024-05-29">
+            </div>
+          
+            <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<!-- Perform approval of Loan Modal -->
+<div class="modal fade" id="performApprovalModal" tabindex="-1" role="dialog" aria-labelledby="performApprovalModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="performApprovalModalLabel">Perform Approval Before Edit</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="performApprovalForm">
+            <div class="form-group">
+              <label for="approvalStatus">Select Status:</label>
+              <select class="form-control form-select" id="approvalStatus" name="status">
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Declined">Declined</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="performApprovalBtn">Perform Approval</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- END: Content-->
+  
+{% include 'partials/dashboard/footer.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+  $(document).ready(function() {
+    $('#loader').show();
 
- <!-- END: Content-->
+    $.ajax({
+        type: 'GET',
+        url: '{% url "profile-detail" %}',
+        success: function(response) {
+            var profile = response.profile;
+            $('#user-first-name').text('Welcome, ' + profile.first_name);
+            var profileImage = profile
+            .profile_picture;
+            if (profileImage) {
+                $('#user-profile-image').attr('src', profileImage);
+            } else {
+                $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+            }
+            fetchTargetSavings(profile.id);
+            // Pass userId to viewTargetSaving function when loading page
+            $('.view-saving').data('userId', profile.id);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+});
+
+function fetchTargetSavings() {
+    $.ajax({
+        type: 'GET',
+        url: '/staffs/all/target-savings/',
+        success: function(response) {
+            var savings = response.data.savings;
+            var tableBody = $('#target-savings-table tbody');
+            tableBody.empty();
+        
+            if (savings.length > 0) {
+                savings.forEach(function(saving) {
+                    var row = $('<tr>');
+                    row.append(`
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-primary" data-toggle="dropdown">
+                                    Action <i class="ft-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                    <a class="dropdown-item view-saving" href="#" data-toggle="modal" data-target="#viewTargetSavingModal" data-id="${saving.transaction_id}" data-user-id="${saving.user_id}">View</a>
+                                    <a class="dropdown-item edit-saving" href="#" data-toggle="modal" data-target="#editTargetSavingModal" data-id="${saving.transaction_id}" data-user-id="${saving.user_id}">Edit</a>
+                                    <a class="dropdown-item perform-status-update" href="#" data-toggle="modal" data-target="#performStatusUpdateModal" data-id="${saving.transaction_id}">Update Status</a>
+                                    <a class="dropdown-item delete-saving" href="#" data-id="${saving.transaction_id}">Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    `);
+                    row.append('<td>' + saving.transaction_id + '</td>');
+                    row.append('<td>' + saving.customer_name + '</td>');
+                    row.append('<td>' + saving.amount + '</td>');
+                    row.append('<td><span class="badge badge-' + getBadgeColor(saving.status) + '">' + saving.status + '</span></td>');
+                    row.append('<td>' + formatDate(saving.created_at) + '</td>');
+                    tableBody.append(row);
+                });
+
+                $('#target-savings-table').DataTable({
+                    "paging": true,
+                    "pageLength": 10,
+                    "lengthMenu": [10, 25, 50, 100],
+                    "searching": true
+                });
+
+                $('#target-savings-table').show();
+            } else {
+                $('#no-records-message').show();
+            }
+            $('#loader').hide();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+}
+
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function getBadgeColor(status) {
+    switch (status) {
+        case 'Pending':
+            return 'warning';
+        case 'Processing':
+            return 'primary';
+        case 'Declined':
+            return 'danger';
+        case 'Paid':
+            return 'success';
+        default:
+            return 'secondary';
+    }
+}
+
+// Event handler for view saving button
+$(document).on('click', '.view-saving', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    var userId = $(this).data('user-id');
+    viewTargetSaving(savingId, userId);
+});
+
+function viewTargetSaving(savingId, userId) {
+    // URL encode the transaction_id
+    var encodedSavingId = encodeURIComponent(savingId);
+    $.ajax({
+        type: 'GET',
+        url: '/customers/target-saving/' + userId + '/' + encodedSavingId + '/', // Use the encoded savingId
+        success: function(response) {
+            var saving = response.data;
+            // Populate modal fields with saving details
+            $('#savingTransactionId').text(saving.transaction_id);
+            $('#savingCustomerName').text(saving.customer_name);
+            $('#savingAmount').text(saving.amount);
+            $('#savingStartSave').text(saving.start_save);
+            $('#savingSaveBy').text(saving.save_by);
+            // Set badge color based on status
+            var badgeColor = getBadgeColor(saving.status);
+            $('#savingStatus').text(saving.status).removeClass().addClass('badge badge-' + badgeColor);
+            $('#savingDateCreated').text(formatDate(saving.created_at));
+            // Show the modal
+            $('#viewTargetSavingModal').modal('show');
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Unable to fetch saving details. Please try again later.'
+            });
+        }
+    });
+}
+
+// Event handler for edit saving button
+$(document).on('click', '.edit-saving', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    var userId = $(this).data('user-id');
+    editTargetSaving(savingId, userId);
+});
+
+function editTargetSaving(savingId, userId) {
+    // URL encode the transaction_id
+    var encodedSavingId = encodeURIComponent(savingId);
+    // Make an AJAX request to fetch the details of the target saving
+    $.ajax({
+        type: 'GET',
+        url: '/customers/target-saving/' + userId + '/' + encodedSavingId + '/',
+        success: function(response) {
+            var saving = response.data;
+            // Populate a form or modal fields with the fetched details
+            $('#editSavingForm input[name="transaction_id"]').val(saving.transaction_id);
+            $('#editSavingForm input[name="amount"]').val(saving.amount);
+            $('#editSavingForm input[name="start_save"]').val(saving.start_save);
+            $('#editSavingForm input[name="save_by"]').val(saving.save_by);
+            // Show the modal or form for editing
+            $('#editTargetSavingModal').modal('show');
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Unable to fetch saving details for editing. Please try again later.'
+            });
+        }
+    });
+}
+
+// Implement the logic to handle saving updates when the form is submitted
+ // Update Target Saving
+$('#editSavingForm').submit(function(event) {
+    event.preventDefault();
+
+    // Gather data from form fields
+    var formData = {
+        customer_name: $('#editCustomerName').val(),
+        amount: $('#editAmount').val(),
+        start_save: $('#editStartSave').val(),
+        save_by: $('#editSaveBy').val(),
+        status: $('#editStatus').val()
+    };
+
+    var savingId = $('#editTransactionId').val(); // Corrected to match the input field
+    var encodedSavingId = encodeURIComponent(savingId);
+
+    // Check if savingId is not empty
+    if (savingId) {
+        $.ajax({
+            type: 'PUT',
+            url: '/customers/target-saving/update/' + encodedSavingId + '/', // Ensure the URL is correct
+            data: formData, // Pass form data directly
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Target saving updated successfully.'
+                }).then(function() {
+                    $('#editTargetSavingModal').modal('hide');
+                    location.reload();
+                    
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update target saving. Please try again later.'
+                });
+            }
+        });
+    } else {
+        // Handle the case when savingId is empty
+        console.error('Saving ID is empty');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Saving ID is empty. Unable to update target saving.'
+        });
+    }
+});
 
 
+// Delete Target Saving
+$(document).on('click', '.delete-saving', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    // Confirm deletion
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this target saving!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, cancel!',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with deletion
+        deleteTargetSaving(savingId);
+      }
+    });
+  });
+  
+  function deleteTargetSaving(savingId) {
+    var encodedSavingId = encodeURIComponent(savingId);
+    // Make AJAX request to delete the target saving
+    $.ajax({
+      type: 'DELETE',
+      url: '/customers/target-saving/delete/' + encodedSavingId + '/',
+      success: function(response) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Target saving deleted successfully.'
+        }).then(function() {
+          // Optionally, you can reload the page or update the UI as needed
+          // For example, remove the deleted row from the table
+          $('tr[data-id="' + savingId + '"]').remove();
+          location.reload();
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to delete target saving. Please try again later.'
+        });
+      }
+    });
+  }
+  
+// Event handler for triggering the perform approval modal
+$(document).on('click', '.perform-status-update', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    $('#performApprovalForm').data('saving-id', savingId); // Store saving ID in form data
+    $('#performApprovalModal').modal('show'); // Show the perform approval modal
+});
 
-
-
-  {% include 'partials/dashboard/footer.html' %}
-
-{% endblock content %}
-
+// Event handler for performing the approval
+$('#performApprovalBtn').click(function() {
+    var savingId = $('#performApprovalForm').data('saving-id');
+    var encodedSavingId = encodeURIComponent(savingId);
+    var newStatus = $('#approvalStatus').val();
+  
+    // Make AJAX request to update saving status
+    $.ajax({
+        type: 'PATCH',
+        url: '/customers/target-saving/status-update/' + encodedSavingId + '/',
+        data: JSON.stringify({ status: newStatus }),
+        contentType: 'application/json',
+        success: function(response) {
+            // Handle success response
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Saving status updated successfully.'
+            }).then(function() {
+                $('#performApprovalModal').modal('hide'); // Hide the modal after successful update
+                location.reload(); // Optionally, you can reload the page or update the UI as needed
+            });
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            // Handle error response
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update saving status. Please try again later.'
+            });
+        }
+    });
+});
+        </script>
+        {% endblock %}

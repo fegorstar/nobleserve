@@ -70,3 +70,109 @@ class PersonalLoan(models.Model):
     def __str__(self):
         # solves the issue with nontype
         return self.sex
+
+
+# TargetSaving model
+class TargetSaving(models.Model):
+    transaction_status_choices = (
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Declined', 'Declined'),
+        ('Paid', 'Paid'),
+    )
+
+    transaction_id = ShortUUIDField(
+        length=12,
+        max_length=40,
+        prefix="NBL_",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+    )
+
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE)  # customer name
+    amount = models.CharField(max_length=10)
+    start_save = models.DateField()
+    save_by = models.DateField()
+    status = models.CharField(
+        choices=transaction_status_choices, max_length=100, default='Pending')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.created_by.email if self.created_by else ''
+
+
+class LeaseFinancing(models.Model):
+    YES = 'Yes'
+    NO = 'No'
+
+    BOOLEAN_CHOICES = [
+        (YES, 'Yes'),
+        (NO, 'No'),
+    ]
+
+    transaction_status_choices = (
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Declined', 'Declined'),
+        ('Paid', 'Paid'),
+    )
+
+    transaction_id = ShortUUIDField(
+        length=12,
+        max_length=40,
+        prefix="NBL_",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+    )
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE)  # customer name
+    status = models.CharField(
+        choices=transaction_status_choices, max_length=100, default='Pending')
+    equipment_type = models.CharField(max_length=255)
+    equipment_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    has_funding = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
+    acquisition_timeline = models.CharField(max_length=100)
+    has_documents = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
+    repayment_duration = models.CharField(max_length=100)
+    location = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Lease Financing - {self.id}"
+
+
+class CorporateLoan(models.Model):
+    YES = 'Yes'
+    NO = 'No'
+
+    BOOLEAN_CHOICES = [
+        (YES, 'Yes'),
+        (NO, 'No'),
+    ]
+
+    transaction_status_choices = (
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Declined', 'Declined'),
+        ('Paid', 'Paid'),
+    )
+
+    transaction_id = ShortUUIDField(
+        length=12,
+        max_length=40,
+        prefix="NBL_",
+        alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+!#,~-%&*£",
+    )
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE)  # customer name
+    status = models.CharField(
+        choices=transaction_status_choices, max_length=100, default='Pending')
+    business_age = models.PositiveIntegerField()
+    industry = models.CharField(max_length=255)
+    loan_purpose = models.TextField()
+    loan_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    has_documents = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
+    repayment_duration = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Corporate Loan - {self.id}"

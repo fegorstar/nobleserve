@@ -1,0 +1,482 @@
+{% extends "base2.html" %}  
+{% load static %}
+{% block title %} My Target Savings {% endblock %}
+{% load widget_tweaks %}
+{% block content %}
+{% include 'partials/dashboard/header.html' %}
+{% include 'partials/dashboard/sidebar.html' %}
+
+<div class="app-content content">
+    <div class="content-overlay"></div>
+    <div class="content-wrapper">
+        <div class="content-header row"></div>
+        <div class="content-body">
+            <div class="row">
+                <div id="recent-transactions" class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Recent Target Savings</h4>
+                            <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
+                            <div class="heading-elements" style="display: flex; justify-content: flex-end; align-items: center;">
+                            
+                                <a class="btn btn-danger box-shadow-2 round btn-min-width" 
+                                href="#" 
+                                style="display: inline-block; text-align: center; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                                data-toggle="modal" 
+                                data-target="#createTargetSavingModal">
+                                 New Target Saving Request
+                             </a>
+                             
+                               
+                          </div>
+                        </div> <hr/>
+
+                        <div class="card-content">                
+                            <div class="table-responsive">
+                                <div id="loader" style="display: none; text-align: center; padding: 20px;">
+                                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                                </div>
+                                <table id="target-savings-table" class="table table-hover table-bordered table-xl mb-0" style="display: none;">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Transaction ID</th>                                
+                                            <th>Customer Name</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable will be populated here -->
+                                    </tbody>
+                                </table>
+                                <div id="no-records-message" style="display: none; text-align: center; padding: 20px;">
+                                    No records found.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Target Saving Modal -->
+<div class="modal fade text-left" id="viewTargetSavingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel1">Target Saving Details</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Transaction ID:</strong> <span id="savingTransactionId"></span></p>
+        <p><strong>Customer Name:</strong> <span id="savingCustomerName"></span></p>
+        <p><strong>Amount:</strong> <span id="savingAmount"></span></p>
+        <p><strong>Start Date:</strong> <span id="savingStartDate"></span></p>
+        <p><strong>Save By:</strong> <span id="savingSaveBy"></span></p>
+        <p><strong>Status:</strong> <span id="savingStatus"></span></p>
+        <p><strong>Date Created:</strong> <span id="savingDateCreated"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Edit Target Saving Modal -->
+<div class="modal fade" id="editTargetSavingModal" tabindex="-1" role="dialog" aria-labelledby="editTargetSavingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTargetSavingModalLabel">Edit Target Saving</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editTargetSavingForm">
+            <div class="form-group">
+              <label for="editTransactionId">Transaction ID</label>
+              <input type="text" class="form-control" id="editTransactionId" readonly>
+            </div>
+          
+            <div class="form-group">
+              <label for="editAmount">Amount</label>
+              <input type="number" class="form-control" id="editAmount">
+            </div>
+            <div class="form-group">
+              <label for="editStartDate">Start Date</label>
+              <input type="date" class="form-control" id="editStartDate">
+            </div>
+            <div class="form-group">
+              <label for="editSaveBy">Save By Date</label>
+              <input type="date" class="form-control" id="editSaveBy">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+  <!-- Create Target Saving Modal -->
+<div class="modal fade" id="createTargetSavingModal" tabindex="-1" role="dialog" aria-labelledby="createTargetSavingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTargetSavingModalLabel">Create Target Saving</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createTargetSavingForm">
+                    <div class="form-group">
+                        <label for="createAmount">Amount</label>
+                        <input type="number" class="form-control" id="createAmount" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="createStartDate">Start Date</label>
+                        <input type="date" class="form-control" id="createStartDate" name="start_save" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="createSaveBy">Save By Date</label>
+                        <input type="date" class="form-control" id="createSaveBy" name="save_by" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Target Saving</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'partials/dashboard/footer.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+  $(document).ready(function() {
+    $('#loader').show();
+
+    $.ajax({
+        type: 'GET',
+        url: '{% url "profile-detail" %}',
+        success: function(response) {
+            var profile = response.profile;
+            $('#user-first-name').text('Welcome, ' + profile.first_name);
+            var profileImage = profile.profile_picture;
+            if (profileImage) {
+                $('#user-profile-image').attr('src', profileImage);
+            } else {
+                $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
+            }
+            fetchTargetSavings(profile.id);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+});
+
+
+
+// Logic for creating a new target saving
+$('#createTargetSavingForm').submit(function(e) {
+    e.preventDefault();
+
+    var formData = new FormData();
+    formData.append('amount', $('#createAmount').val());
+    formData.append('start_save', $('#createStartDate').val());
+    formData.append('save_by', $('#createSaveBy').val());
+
+    $.ajax({
+        type: 'POST',
+        url: '/customers/target-saving/create/', // Change the URL to your endpoint for creating a new target saving
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $('#createTargetSavingModal').modal('hide');
+            fetchTargetSavings();
+            Swal.fire('Success', 'Target saving created successfully!', 'success');
+            location.reload();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire('Error', 'Failed to create target saving. Please try again.', 'error');
+        }
+    });
+});
+
+
+
+function fetchTargetSavings(userId) {
+    $.ajax({
+        type: 'GET',
+        url: '/customers/target-savings/' + userId + '/',
+        success: function(response) {
+            var savings = response.data.savings;
+            var tableBody = $('#target-savings-table tbody');
+            tableBody.empty();
+
+            if (savings.length > 0) {
+                savings.forEach(function(saving) {
+                    var row = $('<tr>');
+                    row.append(`
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-primary" data-toggle="dropdown">
+                                    Action <i class="ft-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                  <a class="dropdown-item view-saving" href="#" data-toggle="modal" data-target="#viewTargetSavingModal" data-id="${saving.transaction_id}">View</a>
+                                  <a class="dropdown-item edit-saving" href="#" data-toggle="modal" data-target="#editTargetSavingModal" data-id="${saving.transaction_id}">Edit</a>
+                                  <a class="dropdown-item delete-saving" href="#" data-id="${saving.transaction_id}">Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    `);
+                    row.append('<td>' + saving.transaction_id + '</td>');
+                    row.append('<td>' + saving.customer_name + '</td>');
+                    row.append('<td>' + saving.amount + '</td>');
+                    row.append('<td><span class="badge badge-' + getBadgeColor(saving.status) + '">' + saving.status + '</span></td>');
+                    row.append('<td>' + formatDate(saving.created_at) + '</td>');
+                    tableBody.append(row);
+                });
+
+                $('#target-savings-table').DataTable({
+                    "paging": true,
+                    "pageLength": 10,
+                    "lengthMenu": [10, 25, 50, 100],
+                    "searching": true
+                });
+
+                $('#target-savings-table').show();
+            } else {
+                $('#no-records-message').show();
+            }
+            $('#loader').hide();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            $('#loader').hide();
+        }
+    });
+}
+
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function getBadgeColor(status) {
+    switch (status) {
+        case 'Pending':
+            return 'warning';
+        case 'Processing':
+            return 'primary';
+        case 'Declined':
+            return 'danger';
+        case 'Completed':
+            return 'success';
+        default:
+            return 'secondary';
+    }
+}
+$(document).on('click', '.view-saving', function(event) {
+    event.preventDefault();
+    var transactionId = $(this).data('id');
+    viewTargetSaving(encodeURIComponent(transactionId));
+  });
+  
+  function viewTargetSaving(transactionId) {
+    $.ajax({
+      type: 'GET',
+      url: '{% url "profile-detail" %}',
+      success: function(response) {
+        var userId = response.profile.id;
+        $.ajax({
+          type: 'GET',
+          url: '/customers/target-saving/' + userId + '/' + transactionId + '/',
+          success: function(response) {
+            var saving = response.data;
+            $('#savingTransactionId').text(saving.transaction_id);
+            $('#savingCustomerName').text(saving.customer_name);
+            $('#savingAmount').text(saving.amount);
+            $('#savingStartDate').text(formatDate(saving.start_save));
+            $('#savingSaveBy').text(formatDate(saving.save_by));
+            var badgeColor = getBadgeColor(saving.status);
+            $('#savingStatus').text(saving.status).removeClass().addClass('badge badge-' + badgeColor);
+            $('#savingDateCreated').text(formatDate(saving.created_at));
+            $('#viewTargetSavingModal').modal('show');
+          },
+          error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+          }
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+      }
+    });
+  }
+</script>
+
+
+<script>
+  // Edit Target Saving Modal
+$(document).on('click', '.edit-saving', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    // Fetch saving details
+    $.ajax({
+      type: 'GET',
+      url: '{% url "profile-detail" %}',
+      success: function(response) {
+        var userId = response.profile.id; // Get userId from the fetched user details
+        // Now, userId is available here, proceed with fetching saving details
+        $.ajax({
+          type: 'GET',
+          url: '/customers/target-saving/' + encodeURIComponent(userId) + '/' + encodeURIComponent(savingId) + '/', // Encode userId and savingId
+          success: function(response) {
+            var saving = response.data;
+            // Populate modal fields with saving details
+            $('#editTransactionId').val(saving.transaction_id);
+            $('#editStatus').val(saving.status); // Populate status
+            $('#editAmount').val(saving.amount);
+            $('#editStartDate').val(saving.start_save); // Populate start date
+            $('#editSaveBy').val(saving.save_by); // Populate save by date
+            $('#editTargetSavingModal').modal('show');
+          },
+          error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Unable to fetch saving details. Please try again later.'
+            });
+          }
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Unable to fetch user details. Please try again later.'
+        });
+      }
+    });
+  });
+    
+  // Update Target Saving
+$('#editTargetSavingForm').submit(function(event) {
+    event.preventDefault();
+  
+    // Gather data from form fields
+    var formData = {
+      status: $('#editStatus').val(),
+      amount: $('#editAmount').val(),
+      start_save: $('#editStartDate').val(),
+      save_by: $('#editSaveBy').val()
+    };
+  
+    var savingId = $('#editTransactionId').val(); // Corrected to match the input field
+  
+    // Check if savingId is not empty
+    if (savingId) {
+      $.ajax({
+        type: 'PUT',
+        url: '/customers/target-saving/update/' + encodeURIComponent(savingId) + '/', // Encode savingId
+        data: formData, // Pass form data directly
+        success: function(response) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Target saving updated successfully.'
+          }).then(function() {
+            $('#editTargetSavingModal').modal('hide');
+            location.reload();
+            // Optionally, you can reload the page or update the UI as needed
+          });
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          console.error(xhr.responseText);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update target saving. Please try again later.'
+          });
+        }
+      });
+    } else {
+      // Handle the case when savingId is empty
+      console.error('Saving ID is empty');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Saving ID is empty. Unable to update target saving.'
+      });
+    }
+  });
+   // Delete Target Saving
+$(document).on('click', '.delete-saving', function(event) {
+    event.preventDefault();
+    var savingId = $(this).data('id');
+    // Confirm deletion
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this target saving!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, cancel!',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with deletion
+        deleteTargetSaving(savingId);
+      }
+    });
+  });
+  
+  function deleteTargetSaving(savingId) {
+    // Make AJAX request to delete the target saving
+    $.ajax({
+      type: 'DELETE',
+      url: '/customers/target-saving/delete/' + encodeURIComponent(savingId) + '/', // Encode savingId
+      success: function(response) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Target saving deleted successfully.'
+        }).then(function() {
+          // Optionally, you can reload the page or update the UI as needed
+          // For example, remove the deleted row from the table
+          $('tr[data-id="' + savingId + '"]').remove();
+          location.reload();
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to delete target saving. Please try again later.'
+        });
+      }
+    });
+  }
+    </script>
+
+{% endblock content %}

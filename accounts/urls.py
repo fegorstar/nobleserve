@@ -36,22 +36,31 @@ urlpatterns = [
     path('teams/', views.teams, name='teams'),
     path('faq/', views.faq, name='faq'),
     # service details
-    path('Nobleserve Target Savings Plan/', views.ntsp, name='ntsp'),
-    path('The Nobleserve Naira Investment/', views.npn, name='npn'),
-    path('Lease Financing/', views.lf, name='lf'),
-    path('Corporate and Commercial Loans/', views.ccl, name='ccl'),
-    path('Personal Loans/', views.pl, name='pl'),
+    path('TargetSavingsPlan/', views.ntsp, name='ntsp'),
+    path('NobleserveNairaInvestment/', views.npn, name='npn'),
+    path('LeaseFinancing/', views.lf, name='lf'),
+    path('CorporateandCommercialLoans/', views.ccl, name='ccl'),
+    path('Personal_Loans/', views.pl, name='pl'),
 
     # blog details
     path('blogdetails1/', views.blogdetails1, name='blogdetails1'),
     path('blogdetails2/', views.blogdetails2, name='blogdetails2'),
     path('blogdetails3/', views.blogdetails3, name='blogdetails3'),
 
+    path('profile/update/', views.ProfileUpdateAPIView.as_view(),
+         name='profile-update'),
+    path('profile/detail/', views.ProfileDetailAPIView.as_view(),
+         name='profile-detail'),
+    path('email/change/', views.EmailChangeAPIView.as_view(), name='email_change'),
+    path('password/change/', views.PasswordChangeAPIView.as_view(),
+         name='password_change'),
+
 
     path('customerDashboard/', views.customerDashboard, name='customerDashboard'),
     path('staffDashboard/', views.staffDashboard, name='staffDashboard'),
-    path('targetSavings/', views.targetSavings, name='targetSavings'),
-    path('personalLoans/', views.personalLoans, name='personalLoans'),
-    path('addpersonalloan/', views.addpersonalloan, name='addpersonalloan'),
+
+
+
+
 
 ]

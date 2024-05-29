@@ -1,3 +1,6 @@
+from accounts.permissions import IsAdminorCustomer, IsAdmin
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.http import QueryDict
 from .permissions import IsAdminorCustomer, IsAdmin
 from rest_framework.decorators import permission_classes
 from django.shortcuts import render
@@ -18,9 +21,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, VerificationRequestSerializer, LoginSerializer, VerificationRequestSerializer, LogoutSerializer, ResendVerificationCodeSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
+from .serializers import RegisterSerializer, VerificationRequestSerializer, LoginSerializer, VerificationRequestSerializer, LogoutSerializer, ResendVerificationCodeSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, ProfileSerializer, ProfileUpdateSerializer, ProfileSerializer, EmailChangeSerializer, PasswordChangeSerializer
 from .models import User
-from customers.serializers import ProfileSerializer
 from customers.models import Profile
 from .utils import Util, generate_verification_code
 from rest_framework.views import APIView
@@ -42,14 +44,25 @@ from django.http import HttpResponsePermanentRedirect
 from django.contrib.auth.models import update_last_login
 from rest_framework import generics
 from django.shortcuts import get_object_or_404, redirect, render
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import validate_email
+from django.template.loader import render_to_string
+from accounts.utils import Util
+from django.utils.translation import gettext_lazy as _
+from accounts.exceptions import CustomException
 
 # ===================================================STATIC PAGES LOGICS======================================
+
+
 class CustomRedirect(HttpResponsePermanentRedirect):
     allowed_schemes = [config('APP_SCHEME'), 'http', 'https']
 
 
-# =======================RegisterView====================================================
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
@@ -87,7 +100,11 @@ class RegisterView(generics.GenericAPIView):
         }
     )
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
+        # Create a mutable copy of the request data
+        mutable_data = request.data.copy()
+        mutable_data['email'] = mutable_data.get('email', '').lower()
+
+        serializer = self.get_serializer(data=mutable_data)
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data['email']
@@ -249,7 +266,10 @@ class EmailVerificationAPIView(APIView):
         # Send verification success email to user
         email_subject = _('Email Verification Success')
         email_body = render_to_string(
-            'email_templates/email_verification_success.html', {'user': user, 'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"})
+            'email_templates/email_verification_success.html', {
+                'user': user,
+                'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
+            })
         email_data = {'email_subject': email_subject,
                       'to_email': user.email, 'email_body': email_body}
         Util.send_email(email_data)
@@ -308,6 +328,9 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
+
+        # Convert email to lowercase
+        email = email.lower() if email else None
 
         try:
             user = User.objects.get(email=email)
@@ -423,6 +446,9 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data.get('email')
+
+        # Convert email to lowercase
+        email = email.lower() if email else None
 
         try:
             # Your logic to retrieve the user goes here
@@ -574,8 +600,238 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
 # ====================================================================================================#
 
 
+# ====================================ProfileUpdateAPIView======================================
+
+
+class ProfileUpdateAPIView(APIView):
+    serializer_class = ProfileUpdateSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAdminorCustomer]
+
+    @swagger_auto_schema(
+        tags=["User Profile Management"],
+        operation_summary="Update Profile",
+        operation_description="Update the profile details.",
+        request_body=ProfileUpdateSerializer,
+        responses={
+            200: openapi.Response(description="Profile updated successfully"),
+            400: "Bad Request",
+            404: "Profile not found"
+        }
+    )
+    def put(self, request, *args, **kwargs):
+        try:
+            # Check if user is authenticated
+            if not request.user.is_authenticated:
+                raise CustomException(detail="Authentication credentials were not provided.",
+                                      status_code=status.HTTP_401_UNAUTHORIZED)
+
+            # Fetch the profile based on the authenticated user
+            profile = Profile.objects.get(user=request.user)
+            serializer = self.serializer_class(
+                profile, data=request.data, context={'request': request})
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": status.HTTP_200_OK, "message": "Profile updated successfully", "data": serializer.data}, status=status.HTTP_200_OK)
+
+            return Response({"status": status.HTTP_400_BAD_REQUEST, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Profile.DoesNotExist:
+            raise CustomException(detail="Profile not found",
+                                  status_code=status.HTTP_404_NOT_FOUND)
+
+        except CustomException as e:
+            return Response({"error": e.detail['error']}, status=e.status_code)
+# ======================================================================================================#
+
+
+# =======================================ProfileDetailAPIView=================================================
+
+class ProfileDetailAPIView(APIView):
+    permission_classes = [IsAdminorCustomer]
+
+    @swagger_auto_schema(
+        tags=["User Profile Management"],
+        operation_summary="Get Profile Details",
+        operation_description="Get the profile details of the authenticated user.",
+        responses={
+            200: openapi.Response(description="Profile details retrieved successfully"),
+            401: "Unauthorized"
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            profile = Profile.objects.get(user=user)
+            # Assuming you have a serializer for profile details
+            serializer = ProfileSerializer(profile)
+            # Include user ID within the "user" object
+            user_data = {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "user_type": user.user_type,
+                "is_active": user.is_active
+            }
+            # Merge user data and profile data
+            profile_data = {
+                **user_data,
+                "profile_picture": serializer.data.get("profile_picture"),
+                "state": serializer.data.get("state"),
+                "city": serializer.data.get("city"),
+                "country": serializer.data.get("country"),
+                "address": serializer.data.get("address"),
+                "sex": serializer.data.get("sex"),
+                "dob": serializer.data.get("dob"),
+                "phone_number": serializer.data.get("phone_number"),
+                "created_at": serializer.data.get("created_at"),
+                "updated_at": serializer.data.get("updated_at")
+            }
+            # Create the response data
+            response_data = {
+                "status": status.HTTP_200_OK,
+                "profile": profile_data
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Profile.DoesNotExist:
+            raise CustomException(detail="Profile not found",
+                                  status_code=status.HTTP_404_NOT_FOUND)
+
+        except CustomException as e:
+            return Response({"error": e.detail['error']}, status=e.status_code)
+# =======================================================================================================#
+
+
+# ===================================EmailChangeAPIView======================================================
+
+class EmailChangeAPIView(GenericAPIView):
+    serializer_class = EmailChangeSerializer
+    permission_classes = [IsAdminorCustomer]
+
+    @staticmethod
+    def send_verification_email(request, user, new_email):
+        email_subject = 'Email Change Confirmation'
+        email_template = 'email_templates/email_change_notification.html'
+        email_recipient = new_email
+
+        org_name = 'Nobleserve Finance'
+        support_email = 'cx@nobleservefinance.com'
+
+        email_context = {
+            'user': user,
+            'new_email': new_email,
+            'organization_name': org_name,
+            'support_email': support_email,
+            'absolute_static_url': f"{settings.BASE_URL}{settings.STATIC_URL}"
+        }
+
+        email_data = {
+            'email_body': render_to_string(email_template, email_context),
+            'to_email': email_recipient,
+            'email_subject': email_subject,
+        }
+
+        Util.send_email(email_data)
+
+    @swagger_auto_schema(
+        tags=["User Profile Management"],
+        operation_summary="Change User Email",
+        operation_description="Change the email address of the current authenticated user.",
+        request_body=EmailChangeSerializer,
+        responses={
+            200: openapi.Response(description="Email updated successfully"),
+            400: openapi.Response(description="Bad request"),
+            403: openapi.Response(description="Forbidden"),
+        }
+    )
+    def patch(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        new_email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        user = request.user
+
+        # Convert new_email to lowercase
+        new_email = new_email.lower() if new_email else None
+
+        try:
+            # Authenticate the user with the current password
+            auth_user = authenticate(email=user.email, password=password)
+            if not auth_user:
+                return Response({'error': 'Invalid password'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Validate the new email format
+            validate_email(new_email)
+
+            # Check if the new email is already in use
+            if User.objects.exclude(pk=user.pk).filter(email=new_email).exists():
+                return Response({'error': 'Email address is already in use. Please choose a different email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update the user's email
+            user.email = new_email
+            user.save()
+
+            # Send email notification
+            self.send_verification_email(request, user, new_email)
+
+            return Response({'status': status.HTTP_200_OK, 'message': _('Email updated successfully'), 'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+# =================================================================================================================#
+
+# ================================================PasswordChangeAPIView==============================
+
+
+class PasswordChangeAPIView(GenericAPIView):
+    serializer_class = PasswordChangeSerializer
+    permission_classes = [IsAdminorCustomer]
+
+    @swagger_auto_schema(
+        tags=['User Profile Management'],
+        operation_summary="Change User Password",
+        operation_description="Change the password of the authenticated user.",
+        request_body=PasswordChangeSerializer,
+        responses={
+            200: openapi.Response(description="Password updated successfully"),
+            400: openapi.Response(description="Bad request"),
+            403: openapi.Response(description="Forbidden"),
+        }
+    )
+    def patch(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+        user = request.user
+
+        try:
+            # Authenticate the user with the current password
+            auth_user = authenticate(
+                email=user.email, password=current_password)
+            if not auth_user:
+                return Response({'error': 'Invalid current password'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Updating the user's password
+            user.set_password(new_password)
+            user.save()
+
+            return Response({'success': True, 'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+# =====================================================================================================#
+
 # ========================================ALL STATIC PAGES=============================
 # homepage
+
+
 def home(request):
     return render(request, 'pages/home.html')
 
@@ -686,14 +942,4 @@ def staffDashboard(request):
     return render(request, 'accounts/staffDashboard.html',)
 
 
-def targetSavings(request):
-    return render(request, 'staffs/target_savings.html')
-
-
-def personalLoans(request):
-    return render(request, 'staffs/personalLoans.html')
-
-
-def addpersonalloan(request):
-    return render(request, 'staffs/addpersonalloan.html')
 # ===============================================================end of static pages======================================

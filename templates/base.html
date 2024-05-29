@@ -79,110 +79,117 @@
     });
   
 
-  // Function to handle form submission
-  $('#regForm').submit(function(event) {
-    event.preventDefault(); // Prevent default form submission behavior
+// Function to handle form submission
+$('#regForm').submit(function(event) {
+  event.preventDefault(); // Prevent default form submission behavior
 
-    const firstName = $('#first_name').val();
-    const lastName = $('#last_name').val();
-    const email = $('#email').val();
-    const password = $('#password').val();
-    const confirmPassword = $('#confirm_password').val();
-    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+  const firstName = $('#first_name').val();
+  const lastName = $('#last_name').val();
+  let email = $('#email').val(); // Use let to allow reassignment
+  const password = $('#password').val();
+  const confirmPassword = $('#confirm_password').val();
+  const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
 
-    // Validate password and confirm password match
-    if (password !== confirmPassword) {
+  // Convert email to lowercase
+  email = email.toLowerCase();
+
+  // Validate password and confirm password match
+  if (password !== confirmPassword) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Password Mismatch',
+      text: 'Password and confirm password do not match.',
+      customClass: {
+        popup: 'swal-small' // Apply custom class to reduce the size
+      }
+    });
+    return;
+  }
+
+  // Save email to local storage
+  localStorage.setItem('verificationEmail', email);
+ 
+  // Show loader icon and disable register button
+  $('#regSubmitBtn').prop('disabled', true);
+  $('#regSubmitBtn .reg-submit-text').addClass('d-none');
+  $('#regSubmitBtn .spinner-border').removeClass('d-none');
+
+  $.ajax({
+    type: 'POST',
+    url: '{% url "register" %}',
+    data: {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      password: password,
+      csrfmiddlewaretoken: csrfToken // Include CSRF token
+    },
+    success: function(response) {
+      // Handle successful registration
+      console.log(response);
+      // Display success message and redirect to login page
+      Swal.fire({
+        icon: 'success',
+        title: 'Registration Successful',
+        text: 'Please check your email to verify your account.',
+        customClass: {
+          popup: 'swal-small' // Apply custom class to reduce the size
+        }
+      }).then(() => {
+        // Handle successful registration
+        console.log(response);
+        // Redirect to verification page along with user email
+        window.location.href = '{% url "verification" %}';
+      });
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      // Handle registration error
+      console.error(xhr.responseText);
+      let errorMessage;
+      const errorResponse = JSON.parse(xhr.responseText);
+      // Check if the response contains the "error" key
+      if (errorResponse.hasOwnProperty('error')) {
+        errorMessage = errorResponse.error;
+      } else if (errorResponse.hasOwnProperty('detail')) {
+        // Check if the response contains the "detail" key
+        errorMessage = errorResponse.detail;
+      } else {
+        // If neither key is found, display a generic error message
+        errorMessage = 'An error occurred. Please try again later.';
+      }
+      // Display error message using SweetAlert
       Swal.fire({
         icon: 'error',
-        title: 'Password Mismatch',
-        text: 'Password and confirm password do not match.',
+        title: 'Error',
+        text: errorMessage,
         customClass: {
           popup: 'swal-small' // Apply custom class to reduce the size
         }
       });
-      return;
+    },
+    complete: function() {
+      // Hide loader icon and enable register button
+      $('#regSubmitBtn').prop('disabled', false);
+      $('#regSubmitBtn .reg-submit-text').removeClass('d-none');
+      $('#regSubmitBtn .spinner-border').addClass('d-none');
     }
-
-     // Save email to local storage
-   localStorage.setItem('verificationEmail', email);
-   
-  // Show loader icon and disable register button
-    $('#regSubmitBtn').prop('disabled', true);
-    $('#regSubmitBtn .reg-submit-text').addClass('d-none');
-    $('#regSubmitBtn .spinner-border').removeClass('d-none');
-
-    $.ajax({
-      type: 'POST',
-      url: '{% url "register" %}',
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        password: password,
-        csrfmiddlewaretoken: csrfToken // Include CSRF token
-      },
-      success: function(response) {
-        // Handle successful registration
-        console.log(response);
-        // Display success message and redirect to login page
-        Swal.fire({
-          icon: 'success',
-          title: 'Registration Successful',
-          text: 'Please check your email to verify your account.',
-          customClass: {
-            popup: 'swal-small' // Apply custom class to reduce the size
-          }
-        }).then(() => {
-        // Handle successful registration
-      console.log(response);
-      // Redirect to verification page along with user email
-      window.location.href = '{% url "verification" %}';
-        });
-      },
-      error: function(xhr, textStatus, errorThrown) {
-        // Handle registration error
-        console.error(xhr.responseText);
-        let errorMessage;
-        const errorResponse = JSON.parse(xhr.responseText);
-        // Check if the response contains the "error" key
-        if (errorResponse.hasOwnProperty('error')) {
-          errorMessage = errorResponse.error;
-        } else if (errorResponse.hasOwnProperty('detail')) {
-          // Check if the response contains the "detail" key
-          errorMessage = errorResponse.detail;
-        } else {
-          // If neither key is found, display a generic error message
-          errorMessage = 'An error occurred. Please try again later.';
-        }
-        // Display error message using SweetAlert
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: errorMessage,
-          customClass: {
-            popup: 'swal-small' // Apply custom class to reduce the size
-          }
-        });
-      },
-      complete: function() {
-        // Hide loader icon and enable register button
-        $('#regSubmitBtn').prop('disabled', false);
-        $('#regSubmitBtn .reg-submit-text').removeClass('d-none');
-        $('#regSubmitBtn .spinner-border').addClass('d-none');
-      }
-    });
   });
-
+})
   
 // Retrieve verification email from local storage and update HTML content
 const verificationEmail = localStorage.getItem('verificationEmail');
 $('.verification-email-placeholder').text(verificationEmail);
+
 // Function to handle form submission
 $('#login-form').submit(function(event) {
   event.preventDefault(); // Prevent default form submission behavior
-  const email = $('#inputEmailAddress').val();
+
+  let email = $('#inputEmailAddress').val();
   const password = $('#password-field').val();
   const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
+
+  // Convert email to lowercase
+  email = email.toLowerCase();
 
   // Show loader icon and disable login button
   $('#login-btn').prop('disabled', true);

@@ -7,29 +7,27 @@
           <li class="nav-item"><a href="{% url 'customerDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a></li>
           <li class="nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">My Loan <br>Applications</span></a>
               <ul class="menu-content">
-                  <li class="active"><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
-                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
-                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
+                  <li class="active" style="margin-top: 10px;"><a class="menu-item" href="{% url 'myTargetSavings' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
+                  <li><a class="menu-item" href="{% url 'myleaseFinancings' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
+                  <li><a class="menu-item" href="{% url 'mycorporateLoans' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
                   <li><a class="menu-item" href="{% url 'personalloans' %}"><span><b>&#8594;</b> Personal Loans</span></a></li>
-                  <li><a class="menu-item" href="{% url 'customerDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a></li>
-              </ul>
+                     </ul>
           </li>
           <li class="nav-item"><a href="{% url 'profile' %}"><i class="ft-user"></i><span class="menu-title" data-i18n="Pages">Profile</span></a></li>
-          <li class="nav-item"><a href="#"><i class="mbri-user"></i><span class="menu-title" data-i18n="Forms">KYC <br>Verification</span></a></li>
-          <li class="nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">Account <br> Settings</span></a></li>
+          <!-- <li class="nav-item"><a href="#"><i class="mbri-user"></i><span class="menu-title" data-i18n="Forms">KYC <br>Verification</span></a></li> -->
+          <!-- <li class="nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">Account <br> Settings</span></a></li> -->
       </ul>
 
-      <!-- Admin sidebar-nav -->
+      <!-- Admin or staff sidebar-nav -->
       <ul id="admin-menu" style="display: none; margin-top:10px" class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
           <li class="nav-item"><a href="{% url 'staffDashboard' %}"><i class="mbri-desktop"></i><span class="menu-title" data-i18n="Dashboard">Dashboard</span></a></li>
           <li class="nav-item"><a href="#"><i class="mbri-extension"></i><span class="menu-title" data-i18n="Apps">View<br>Applications</span></a>
               <ul class="menu-content">
-                  <li class="active"><a class="menu-item" href="{% url 'targetSavings' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
-                  <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
-                  <li><a class="menu-item" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
+                  <li class="active" style="margin-top: 10px;"><a class="menu-item" href="{% url 'targetSavings' %}"><span><b>&#8594;</b> Target Savings Plan</span></a></li>
+                  <li><a class="menu-item" href="{% url 'LeaseFinancings' %}"><span><b>&#8594;</b> Lease financing</span></a></li>
+                  <li><a class="menu-item" href="{% url 'CorporateLoans' %}"><span><b>&#8594;</b> Corporate and commercial Loans</span></a></li>
                   <li><a class="menu-item" href="{% url 'personalLoans' %}"><span><b>&#8594;</b> Personal Loans</span></a></li>
-                  <li><a class="menu-it em" href="{% url 'staffDashboard' %}"><span><b>&#8594;</b> Funds Management</span></a></li>
-              </ul>
+                       </ul>
           </li>
           <li class="nav-item"><a href="{% url 'profile' %}"><i class="ft-user"></i><span class="menu-title" data-i18n="Pages">Profile</span></a></li>
           <li class="nav-item"><a href="#"><i class="mbri-edit"></i><span class="menu-title" data-i18n="Forms">User<br>Management</span></a></li>

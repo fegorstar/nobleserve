@@ -22,7 +22,7 @@ class EmailThread(threading.Thread):
 class Util:
     @staticmethod
     def send_email(data, use_html_content=True):
-        from_email = 'abighe-simon.pius@datasphir.com'
+        from_email = 'noblepay@nobleservefinance.com'
 
         # Create an EmailMessage
         email = EmailMessage(

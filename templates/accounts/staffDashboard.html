@@ -29,7 +29,7 @@
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
                                         <h3 class="info" id="customer-count">Loading...</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold">Number of Customers <br><br></h6>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Customers <br><br></h6>
                                     </div>
                                     <div>
                                         <i class="icon-user-follow success font-large-2 float-right"></i>
@@ -41,12 +41,13 @@
                 </div>
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
+                        <a href="{% url 'targetSavings' %}">
                         <div class="card-content">
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
                                         <h3 class="warning" id="target-savings-count">Loading...</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold">Number Target Savings Plan Requests</h6>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Target Savings Plan Requests</h6>
                                     </div>
                                     <div>
                                         <img class="" src="{% static 'app-assets/images/icons/targetsavings.svg' %}"  width="50px" alt="logo">
@@ -54,16 +55,18 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
+                        <a href="{% url 'CorporateLoans' %}">
                         <div class="card-content">
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
                                         <h3 class="success" id="corporate-loans-count">Loading...</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold">Number Corporate and Commercial Loans</h6>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Corporate and Commercial Loans</h6>
                                     </div>
                                     <div>
                                         <img class="" src="{% static 'app-assets/images/icons/lease-finance.svg' %}"  width="50px" alt="logo">
@@ -71,16 +74,18 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
                 <div class="col-xl-3 col-lg-6 col-12">
                     <div class="card pull-up">
+                        <a href="{% url 'LeaseFinancings' %}">
                         <div class="card-content">
                             <div class="card-body">
                                 <div class="media d-flex">
                                     <div class="media-body text-left">
                                         <h3 class="success" id="lease-financing-count">Loading...</h3>
-                                        <h6 style="margin-top: 10px; font-weight:bold">Number of Lease Financing Requests</h6>
+                                        <h6 style="margin-top: 10px; font-weight:bold">Lease Financing Requests</h6>
                                     </div>
                                     <div>
                                         <img class="" src="{% static 'app-assets/images/icons/lease-finance.svg' %}"  width="50px" alt="logo">
@@ -88,6 +93,7 @@
                                 </div>
                             </div>
                         </div>
+                    </a>
                     </div>
                 </div>
                 <div class="col-xl-3 col-lg-6 col-12">
@@ -129,9 +135,9 @@
                     $('#customer-count').text(response.data.customer_count);
                     $('#personal-loans-count').text(response.data.personal_loan_count);
                     // Populate other counts similarly
-                    // $('#target-savings-count').text(response.data.target_savings_count); // Add if available
-                    // $('#corporate-loans-count').text(response.data.corporate_loans_count); // Add if available
-                    // $('#lease-financing-count').text(response.data.lease_financing_count); // Add if available
+                    $('#target-savings-count').text(response.data.target_saving_count); // Add if available
+                    $('#corporate-loans-count').text(response.data.corporate_loan_count); // Add if available
+                    $('#lease-financing-count').text(response.data.lease_financing_count); // Add if available
                 } else {
                     alert('Failed to fetch statistics');
                 }

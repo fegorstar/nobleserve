@@ -1,0 +1,165 @@
+{% extends "administrator/Admindashboardbase.html" %}
+{% load static %}
+{% block title %} Dashboard {% endblock %}
+{% load widget_tweaks %}
+{% block content %}
+<head>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+</head>
+{% include 'administrator/partials/header.html' %}
+{% include 'administrator/partials/sidebar.html' %}
+
+<div class="app-container">
+    <div class="app-main" id="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-statistics">
+                        <div class="card-body">
+                            <div class="datatable-wrapper table-responsive">
+                                <table id="loan-requests-table" class="display compact table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="checkAll"></th>
+                                            <th>Action</th>
+                                            <th>Name</th>
+                                            <th>Phone Number</th>
+                                            <th>Email</th> <!-- Added Email column header -->
+                                           
+                                            <th>Status</th>
+                                            <th>Amount</th>
+                                            <th>Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Table rows will be dynamically generated here -->
+                                    </tbody>
+                                </table>
+                                <div id="processing-message" style="display: none;"><img src="{% static 'assets/processing.gif' %}" alt="Loading..."></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> </div>
+    </div>
+{% include 'administrator/partials/footer.html' %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var dataTable = $('#loan-requests-table').DataTable({
+            processing: true,
+            serverSide: false,
+            searching: true,
+            language: {
+                "emptyTable": "Processing..."
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return '<input type="checkbox" class="row-checkbox" data-id="' + row.id + '">';
+                    }
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return '<div class="dropdown">' +
+                                    '<button class="btn btn-primary dropdown-toggle" type="button" id="actionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                                        'Action' +
+                                    '</button>' +
+                                    '<div class="dropdown-menu" aria-labelledby="actionDropdown">' +
+                                        '<a class="dropdown-item view-loan" href="#" data-toggle="modal" data-target="#viewPersonalLoanModal" data-id="' + row.id + '">View</a>' +
+                                        '<a class="dropdown-item edit-loan" href="#" data-toggle="modal" data-target="#editPersonalLoanModal" data-id="' + row.id + '">Edit</a>' +
+                                        '<a class="dropdown-item" href="#" onclick="moveToAwaitingDisbursement(' + row.id + ')">Move Loan To Awaiting Disbursement</a>' +
+                                    '</div>' +
+                                '</div>';
+                    }
+                },
+                { data: 'full_name', render: formatData },
+                { data: 'phone_number', render: formatData },
+                { data: 'customer.email', render: formatData }, // Added Email column data
+              
+                { data: 'status', render: formatData },
+                { data: 'amount', render: formatData },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return '<span style="word-wrap: break-word; white-space: pre-wrap; font-size: 12px;">' + new Date(data).toLocaleString() + '</span>';
+                    }
+                }
+            ]
+        });
+
+        function formatData(data) {
+            return '<span style="word-wrap: break-word; white-space: pre-wrap; font-size: 12px;">' + data + '</span>';
+        }
+
+        // Add CSS style to break text into new lines in table cells
+        $('#loan-requests-table').DataTable().columns().every(function () {
+            var column = this;
+            column.nodes().to$().css('word-wrap', 'break-word');
+            column.nodes().to$().css('white-space', 'pre-wrap');
+            column.nodes().to$().css('font-size', '12px');
+        });
+        
+        var accessToken = localStorage.getItem('access_token');
+    
+        if (!accessToken) {
+            console.error('Access token not found in local storage');
+            return;
+        }
+    
+        $.ajax({
+            url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/loan/list',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function (response) {
+                if (response.message === "Loans fetched successfully") {
+                    dataTable.clear();
+                    dataTable.rows.add(response.data);
+                    dataTable.draw();
+                } else {
+                    console.error('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error: ' + error);
+            },
+            complete: function() {
+                if (dataTable.data().count() === 0) {
+                    $('#processing-message').show();
+                }
+            }
+        });
+    
+        // Check all checkbox
+        $('#checkAll').click(function () {
+            $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+    
+        // If all checkboxes are checked, check the "check all" checkbox
+        $('input:checkbox').click(function () {
+            if ($('input:checkbox:checked').length === $('input:checkbox').length) {
+                $('#checkAll').prop('checked', true);
+            } else {
+                $('#checkAll').prop('checked', false);
+            }
+        });
+    });
+
+    function moveToAwaitingDisbursement(id) {
+        // Implement logic to move loan to awaiting disbursement using the provided id
+    }
+</script>
+
+{% endblock content %}

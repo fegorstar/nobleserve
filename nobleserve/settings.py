@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'customers',
+    'staffs',
+    'administrator',
     'widget_tweaks',
     "rest_framework",
     'corsheaders',
@@ -188,18 +190,14 @@ SIMPLE_JWT = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-    'https://209.97.190.64',
-    'https://mentorhub.cloud.ren.ng',
-    'https://localhost:5173',
-    'https://localhost:5174',
-    'https://localhost:5175'
+    'https://www.nobleservefinance.com',
 )
 
 
 # EMAIL CONFIGURATION
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'mail.datasphir.com'
+EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')

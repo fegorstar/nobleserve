@@ -1,0 +1,496 @@
+{% extends "base2.html" %}  
+{% load static %}
+{% block title %} Corporate Loans {% endblock %}
+
+{% block content %}
+{% include 'partials/dashboard/header.html' %}
+{% include 'partials/dashboard/sidebar.html' %}
+
+<div class="app-content content">
+    <div class="content-overlay"></div>
+    <div class="content-wrapper">
+        <div class="content-header row"></div>
+        <div class="content-body">
+            <div class="row">
+                <div id="recent-loans" class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Recent Corporate Loans</h4>
+                            <a class="heading-elements-toggle"><i class="la la-ellipsis-v font-medium-3"></i></a>
+                            <div class="heading-elements" style="display: flex; justify-content: flex-end; align-items: center;">
+                                <a class="btn btn-danger box-shadow-2 round btn-min-width" 
+                                href="#" 
+                                style="display: inline-block; text-align: center; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+                                data-toggle="modal" 
+                                data-target="#createCorporateLoanModal">
+                                 New Corporate Loan Request
+                             </a>
+                          </div>
+                        </div> <hr/>
+
+                        <div class="card-content">                
+                            <div class="table-responsive">
+                                <div id="loader" style="display: none; text-align: center; padding: 20px;">
+                                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                                </div>
+                                <table id="corporate-loans-table" class="table table-hover table-bordered table-xl mb-0" style="display: none;">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>Transaction ID</th>                                
+                                            <th>Customer Name</th>
+                                            <th>Loan Amount</th>
+                                            <th>Status</th>
+                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable will be populated here -->
+                                    </tbody>
+                                </table>
+                                <div id="no-records-message" style="display: none; text-align: center; padding: 20px;">
+                                    No records found.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Corporate Loan Modal -->
+<div class="modal fade" id="createCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="createCorporateLoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createCorporateLoanModalLabel">Create Corporate Loan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createCorporateLoanForm">
+                    <div class="form-group">
+                        <label for="loanAmount">Loan Amount</label>
+                        <input type="number" class="form-control" id="loanAmount" name="loan_amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessAge">Business Age</label>
+                        <input type="number" class="form-control" id="businessAge" name="business_age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="industry">Industry</label>
+                        <input type="text" class="form-control" id="industry" name="industry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanPurpose">Loan Purpose</label>
+                        <input type="text" class="form-control" id="loanPurpose" name="loan_purpose" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hasDocuments">Has Documents</label>
+                        <select class="form-control form-select" id="hasDocuments" name="has_documents" required>
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="repaymentDuration">Repayment Duration</label>
+                        <input type="date" class="form-control" id="repaymentDuration" name="repayment_duration" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Corporate Loan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- View Corporate Loan Modal -->
+<div class="modal fade text-left" id="viewCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="myModalLabel2">Corporate Loan Details</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Transaction ID:</strong> <span id="loanTransactionId"></span></p>
+          <p><strong>Created By:</strong> <span id="loanCreatedBy"></span></p>
+          <p><strong>Business Age:</strong> <span id="loanBusinessAge"></span></p>
+          <p><strong>Industry:</strong> <span id="loanIndustry"></span></p>
+          <p><strong>Loan Purpose:</strong> <span id="loanPurpose"></span></p>
+          <p><strong>Loan Amount:</strong> <span id="loanAmount"></span></p>
+          <p><strong>Has Documents:</strong> <span id="loanHasDocuments"></span></p>
+          <p><strong>Repayment Duration:</strong> <span id="loanRepaymentDuration"></span></p>
+          <p><strong>Customer Name:</strong> <span id="loanCustomerName"></span></p>
+          <p><strong>Status:</strong> <span id="loanStatus"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+  <!-- Edit Corporate Loan Modal -->
+<div class="modal fade" id="editCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="editCorporateLoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCorporateLoanModalLabel">Edit Corporate Loan</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="editCorporateLoanForm">
+          <div class="modal-body">
+            <!-- Input fields for editing corporate loan details -->
+            <input type="hidden" id="editLoanId" name="transaction_id">
+            <div class="form-group">
+              <label for="editBusinessAge">Business Age</label>
+              <input type="text" class="form-control" id="editBusinessAge" name="business_age">
+            </div>
+            <div class="form-group">
+              <label for="editIndustry">Industry</label>
+              <input type="text" class="form-control" id="editIndustry" name="industry">
+            </div>
+            <div class="form-group">
+              <label for="editLoanPurpose">Loan Purpose</label>
+              <input type="text" class="form-control" id="editLoanPurpose" name="loan_purpose">
+            </div>
+            <div class="form-group">
+              <label for="editLoanAmount">Loan Amount</label>
+              <input type="text" class="form-control" id="editLoanAmount" name="loan_amount">
+            </div>
+            <div class="form-group">
+              <label for="editHasDocuments">Has Documents</label>
+              <select class="form-control form-select" id="editHasDocuments" name="has_documents">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editRepaymentDuration">Repayment Duration</label>
+              <input type="text" class="form-control" id="editRepaymentDuration" name="repayment_duration">
+            </div>
+            <!-- Add more input fields for other loan details -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+{% include 'partials/dashboard/footer.html' %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    $(document).ready(function() {
+        $('#loader').show();
+    
+        // Fetch user details and recent corporate loans
+        $.ajax({
+            type: 'GET',
+            url: '{% url "profile-detail" %}',
+            success: function(response) {
+                var profile = response.profile;
+                fetchCorporateLoans(profile.id);
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error(xhr.responseText);
+                $('#loader').hide();
+            }
+        });
+    });
+    
+
+    // Function to get badge color based on loan status
+    function getBadgeColor(status) {
+        switch (status) {
+            case 'Pending':
+                return 'warning';
+            case 'Approved':
+                return 'primary';
+            case 'Rejected':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    }
+
+
+    $(document).on('click', '.view-loan', function(event) {
+        event.preventDefault();
+        var transactionId = $(this).data('id');
+        viewCorporateLoan(encodeURIComponent(transactionId));
+    });
+    
+    function viewCorporateLoan(transactionId) {
+        $.ajax({
+            type: 'GET',
+            url: '{% url "profile-detail" %}',
+            success: function(response) {
+                var userId = response.profile.id;
+                $.ajax({
+                    type: 'GET',
+                    url: '/customers/corporate-loan/' + userId + '/' + transactionId + '/',
+                    success: function(response) {
+                        var loan = response.data;
+                        populateLoanDetails(loan);
+                        $('#viewCorporateLoanModal').modal('show');
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+    function populateLoanDetails(loan) {
+        $('#loanTransactionId').text(loan.transaction_id);
+        $('#loanCreatedBy').text(loan.created_by);
+        $('#loanBusinessAge').text(loan.business_age);
+        $('#loanIndustry').text(loan.industry);
+        $('#loanPurpose').text(loan.loan_purpose);
+        $('#loanAmount').text(loan.loan_amount);
+        $('#loanHasDocuments').text(loan.has_documents);
+        $('#loanRepaymentDuration').text(loan.repayment_duration);
+        $('#loanCustomerName').text(loan.customer_name);
+        // Clear existing badge classes
+        $('#loanStatus').removeClass().addClass('badge');
+        // Set badge text and color based on status
+        var badgeText = loan.status;
+        var badgeColor = getBadgeColor(loan.status);
+        $('#loanStatus').text(badgeText).addClass('badge badge-' + badgeColor);
+    }
+    
+    
+    // Logic for creating a new corporate loan
+$('#createCorporateLoanForm').submit(function(e) {
+    e.preventDefault();
+
+    var formData = new FormData();
+    formData.append('loan_amount', $('#loanAmount').val());
+    formData.append('business_age', $('#businessAge').val());
+    formData.append('industry', $('#industry').val());
+    formData.append('loan_purpose', $('#loanPurpose').val());
+    formData.append('has_documents', $('#hasDocuments').val());
+    formData.append('repayment_duration', $('#repaymentDuration').val());
+
+    $.ajax({
+        type: 'POST',
+        url: '/customers/corporate-loans/create/', // Change the URL to your endpoint for creating a new corporate loan
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $('#createCorporateLoanModal').modal('hide');
+            fetchCorporateLoans();
+            Swal.fire('Success', 'Corporate loan created successfully!', 'success');
+            location.reload();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire('Error', 'Failed to create corporate loan. Please try again.', 'error');
+        }
+    });
+});
+
+
+
+      // Function to fetch recent corporate loans
+    function fetchCorporateLoans(userId) {
+        $.ajax({
+            type: 'GET',
+            url: '/customers/corporate-loans/' + userId + '/',
+            success: function(response) {
+                var loans = response.data.loans;
+                var tableBody = $('#corporate-loans-table tbody');
+                tableBody.empty();
+    
+                if (loans.length > 0) {
+                    loans.forEach(function(loan) {
+                        var row = $('<tr>');
+                        row.append(`
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-primary" data-toggle="dropdown">
+                                        Action <i class="ft-chevron-down"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                          
+                                      <a class="dropdown-item view-loan" href="#" data-toggle="modal" data-target="#viewCorporateLoanModal" data-id="${loan.transaction_id}">View</a>
+                                      <a class="dropdown-item edit-corporate-loan" href="#" data-toggle="modal" data-target="#editCorporateLoanModal" data-id="${loan.transaction_id}">Edit</a>
+                                       <a class="dropdown-item delete-corporate-loan" href="#" data-id="${loan.transaction_id}">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        `);
+                        row.append('<td>' + loan.transaction_id + '</td>');
+                        row.append('<td>' + loan.customer_name + '</td>');
+                        row.append('<td>' + loan.loan_amount + '</td>');
+                        row.append('<td><span class="badge badge-' + getBadgeColor(loan.status) + '">' + loan.status + '</span></td>');
+                      
+                        tableBody.append(row);
+                    });
+    
+                    $('#corporate-loans-table').DataTable({
+                        "paging": true,
+                        "pageLength": 10,
+                        "lengthMenu": [10, 25, 50, 100],
+                        "searching": true
+                    });
+    
+                    $('#corporate-loans-table').show();
+                } else {
+                    $('#no-records-message').show();
+                }
+                $('#loader').hide();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error(xhr.responseText);
+                $('#loader').hide();
+            }
+        });
+    }
+    
+// Edit Corporate Loan Modal
+$(document).on('click', '.edit-corporate-loan', function(event) {
+    event.preventDefault();
+    var loanId = $(this).data('id');
+    // Fetch loan details
+    $.ajax({
+        type: 'GET',
+        url: '{% url "profile-detail" %}',
+        success: function(response) {
+            var userId = response.profile.id; // Get userId from the fetched user details
+            // Now, userId is available here, proceed with fetching loan details
+            $.ajax({
+                type: 'GET',
+                url: '/customers/corporate-loan/' + encodeURIComponent(userId) + '/' + encodeURIComponent(loanId) + '/', // Encode userId and loanId
+                success: function(response) {
+                    var loan = response.data;
+                    // Populate modal fields with loan details
+                    $('#editLoanId').val(loan.transaction_id);
+                    $('#editBusinessAge').val(loan.business_age);
+                    $('#editIndustry').val(loan.industry);
+                    $('#editLoanPurpose').val(loan.loan_purpose);
+                    $('#editLoanAmount').val(loan.loan_amount);
+                    $('#editHasDocuments').val(loan.has_documents);
+                    $('#editRepaymentDuration').val(loan.repayment_duration);
+                    $('#editCorporateLoanModal').modal('show');
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Unable to fetch loan details. Please try again later.'
+                    });
+                }
+            });
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Unable to fetch user details. Please try again later.'
+            });
+        }
+    });
+});
+
+// Update Corporate Loan
+$('#editCorporateLoanForm').submit(function(event) {
+    event.preventDefault();
+    var formData = $(this).serialize();
+    var loanId = $('#editLoanId').val();
+    $.ajax({
+        type: 'PUT',
+        url: '/customers/corporate-loan/update/' + encodeURIComponent(loanId) + '/',
+        data: formData,
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Corporate loan updated successfully.'
+            }).then(function() {
+                $('#editCorporateLoanModal').modal('hide');
+                location.reload();
+            });
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update corporate loan. Please try again later.'
+            });
+        }
+    });
+});
+
+// Delete Corporate Loan
+$(document).on('click', '.delete-corporate-loan', function(event) {
+    event.preventDefault();
+    var loanId = $(this).data('id');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this corporate loan!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteCorporateLoan(loanId);
+        }
+    });
+});
+
+function deleteCorporateLoan(loanId) {
+    $.ajax({
+        type: 'DELETE',
+        url: '/customers/corporate-loan/delete/' + encodeURIComponent(loanId) + '/',
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Corporate loan deleted successfully.'
+            }).then(function() {
+                location.reload();
+            });
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to delete corporate loan. Please try again later.'
+            });
+        }
+    });
+}
+
+
+    </script>
+    
+
+{% endblock content %}
