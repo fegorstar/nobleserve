@@ -59,7 +59,6 @@
         </div>
     </div>
 </div>
-
 <!-- Create Corporate Loan Modal -->
 <div class="modal fade" id="createCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="createCorporateLoanModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -90,13 +89,16 @@
                     </div>
                     <div class="form-group">
                         <label for="hasDocuments">Has Documents</label>
-                        <select class="form-control form-select" id="hasDocuments" name="has_documents" required>
+                        <select class="form-control form-select" id="hasDocuments" name="has_documents" required onchange="toggleCorporateLoanDocumentLink()">
                             <option value="">Select</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
                     </div>
-                    
+                    <div class="form-group" id="corporateLoanDocumentLinkGroup" style="display: none;">
+                        <label for="corporateLoanDocumentLink">Document Link</label>
+                        <input type="url" class="form-control" id="corporateLoanDocumentLink" name="document_link">
+                    </div>
                     <div class="form-group">
                         <label for="repaymentDuration">Repayment Duration</label>
                         <input type="date" class="form-control" id="repaymentDuration" name="repayment_duration" required>
@@ -110,92 +112,135 @@
 
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function toggleCorporateLoanDocumentLink() {
+    var hasDocuments = document.getElementById('hasDocuments').value;
+    var documentLinkGroup = document.getElementById('corporateLoanDocumentLinkGroup');
+    var documentLinkInput = document.getElementById('corporateLoanDocumentLink');
+
+    if (hasDocuments === 'Yes') {
+      documentLinkGroup.style.display = 'block';
+      documentLinkInput.required = true;
+    } else {
+      documentLinkGroup.style.display = 'none';
+      documentLinkInput.required = false;
+    }
+  }
+
+  // Initialize the document link visibility on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleCorporateLoanDocumentLink();
+  });
+</script>
+
+
 <!-- View Corporate Loan Modal -->
 <div class="modal fade text-left" id="viewCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="myModalLabel2">Corporate Loan Details</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Corporate Loan Details</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Transaction ID:</strong> <span id="loanTransactionId"></span></p>
+                <p><strong>Business Age:</strong> <span id="loanBusinessAge"></span></p>
+                <p><strong>Industry:</strong> <span id="loanIndustry"></span></p>
+                <p><strong>Loan Purpose:</strong> <span id="loanLoanPurpose"></span></p>
+                <p><strong>Loan Amount:</strong> <span id="loanLoanAmount"></span></p>
+                <p><strong>Has Documents:</strong> <span id="loanHasDocuments"></span></p>
+                <p><strong>Document Link:</strong> <span id="loanDocumentLink"></span></p>
+                <p><strong>Repayment Duration:</strong> <span id="loanRepaymentDuration"></span></p>
+                <p><strong>Customer Name:</strong> <span id="loanCustomerName"></span></p>
+                <p><strong>Status:</strong> <span id="loanStatus"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
-        <div class="modal-body">
-          <p><strong>Transaction ID:</strong> <span id="loanTransactionId"></span></p>
-          <p><strong>Created By:</strong> <span id="loanCreatedBy"></span></p>
-          <p><strong>Business Age:</strong> <span id="loanBusinessAge"></span></p>
-          <p><strong>Industry:</strong> <span id="loanIndustry"></span></p>
-          <p><strong>Loan Purpose:</strong> <span id="loanPurpose"></span></p>
-          <p><strong>Loan Amount:</strong> <span id="loanAmount"></span></p>
-          <p><strong>Has Documents:</strong> <span id="loanHasDocuments"></span></p>
-          <p><strong>Repayment Duration:</strong> <span id="loanRepaymentDuration"></span></p>
-          <p><strong>Customer Name:</strong> <span id="loanCustomerName"></span></p>
-          <p><strong>Status:</strong> <span id="loanStatus"></span></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
     </div>
-  </div>
-  
+</div>
 
 
-  <!-- Edit Corporate Loan Modal -->
-<div class="modal fade" id="editCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="editCorporateLoanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editCorporateLoanModalLabel">Edit Corporate Loan</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form id="editCorporateLoanForm">
-          <div class="modal-body">
-            <!-- Input fields for editing corporate loan details -->
-            <input type="hidden" id="editLoanId" name="transaction_id">
-            <div class="form-group">
-              <label for="editBusinessAge">Business Age</label>
-              <input type="text" class="form-control" id="editBusinessAge" name="business_age">
-            </div>
-            <div class="form-group">
-              <label for="editIndustry">Industry</label>
-              <input type="text" class="form-control" id="editIndustry" name="industry">
-            </div>
-            <div class="form-group">
-              <label for="editLoanPurpose">Loan Purpose</label>
-              <input type="text" class="form-control" id="editLoanPurpose" name="loan_purpose">
-            </div>
-            <div class="form-group">
-              <label for="editLoanAmount">Loan Amount</label>
-              <input type="text" class="form-control" id="editLoanAmount" name="loan_amount">
-            </div>
-            <div class="form-group">
-              <label for="editHasDocuments">Has Documents</label>
-              <select class="form-control form-select" id="editHasDocuments" name="has_documents">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="editRepaymentDuration">Repayment Duration</label>
-              <input type="text" class="form-control" id="editRepaymentDuration" name="repayment_duration">
-            </div>
-            <!-- Add more input fields for other loan details -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
   
 {% include 'partials/dashboard/footer.html' %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+<!-- Edit Corporate Loan Modal -->
+<div class="modal fade text-left" id="editCorporateLoanModal" tabindex="-1" role="dialog" aria-labelledby="editCorporateLoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="editCorporateLoanModalLabel">Edit Corporate Loan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editCorporateLoanForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editLoanId" name="transaction_id">
+                    <div class="form-group">
+                        <label for="editBusinessAge">How old is your business?</label>
+                        <input type="text" class="form-control" id="editBusinessAge" name="business_age">
+                    </div>
+                    <div class="form-group">
+                        <label for="editIndustry">Which industry is your business in?</label>
+                        <input type="text" class="form-control" id="editIndustry" name="industry">
+                    </div>
+                    <div class="form-group">
+                        <label for="editLoanPurpose">What is your purpose for needing this loan?</label>
+                        <input type="text" class="form-control" id="editLoanPurpose" name="loan_purpose">
+                    </div>
+                    <div class="form-group">
+                        <label for="editLoanAmount">Loan Amount</label>
+                        <input type="text" class="form-control" id="editLoanAmount" name="loan_amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="editHasDocuments">Do you have all required documents?</label>
+                        <select class="form-control form-select" id="editHasDocuments" name="has_documents" onchange="toggleEditDocumentLink()">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="editCorporateLoanDocumentLinkGroup" style="display: none;">
+                        <label for="editCorporateLoanDocumentLink">Document Link</label>
+                        <input type="url" class="form-control" id="editCorporateLoanDocumentLink" name="document_link">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRepaymentDuration">When do you intend to pay back (duration)?</label>
+                        <input type="date" class="form-control" id="editRepaymentDuration" name="repayment_duration">
+                    </div>
+                    <!-- Add more input fields for other loan details -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Function to toggle document link field visibility based on 'has_documents' value
+    function toggleEditDocumentLink() {
+        var hasDocuments = $('#editHasDocuments').val();
+        var documentLinkGroup = $('#editCorporateLoanDocumentLinkGroup');
+
+        if (hasDocuments === 'Yes') {
+            documentLinkGroup.show();
+            $('#editCorporateLoanDocumentLink').prop('required', true);
+        } else {
+            documentLinkGroup.hide();
+            $('#editCorporateLoanDocumentLink').prop('required', false);
+        }
+    }
+</script>
 <script>
     $(document).ready(function() {
         $('#loader').show();
@@ -237,50 +282,63 @@
         viewCorporateLoan(encodeURIComponent(transactionId));
     });
     
-    function viewCorporateLoan(transactionId) {
+    function viewCorporateLoan(loanId) {
+        // Fetch user details first
         $.ajax({
             type: 'GET',
             url: '{% url "profile-detail" %}',
             success: function(response) {
-                var userId = response.profile.id;
+                var userId = response.profile.id; // Get userId from the fetched user details
+                // Now, userId is available here, proceed with fetching loan details
                 $.ajax({
                     type: 'GET',
-                    url: '/customers/corporate-loan/' + userId + '/' + transactionId + '/',
+                    url: '/customers/corporate-loan/' + userId + '/' + loanId + '/',
                     success: function(response) {
                         var loan = response.data;
-                        populateLoanDetails(loan);
+                        // Populate modal fields with loan details
+                        $('#loanTransactionId').text(loan.transaction_id);
+                        $('#loanBusinessAge').text(loan.business_age);
+                        $('#loanIndustry').text(loan.industry);
+                        $('#loanLoanPurpose').text(loan.loan_purpose);
+                        $('#loanLoanAmount').text(loan.loan_amount);
+                        $('#loanHasDocuments').text(loan.has_documents);
+                        $('#loanRepaymentDuration').text(loan.repayment_duration);
+                        $('#loanCustomerName').text(loan.customer_name);
+                        
+                        // Populate document link if available
+                        if (loan.has_documents === 'Yes' && loan.document_link) {
+                            $('#loanDocumentLink').html('<a href="' + loan.document_link + '" target="_blank">View Document</a>');
+                        } else {
+                            $('#loanDocumentLink').text('No documents provided');
+                        }
+    
+                        // Set badge text and color based on status
+                        var badgeText = loan.status;
+                        var badgeColor = getBadgeColor(loan.status);
+                        $('#loanStatus').text(badgeText).addClass('badge badge-' + badgeColor);
                         $('#viewCorporateLoanModal').modal('show');
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         console.error(xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Unable to fetch loan details. Please try again later.'
+                        });
                     }
                 });
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.error(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to fetch user details. Please try again later.'
+                });
             }
         });
     }
-    function populateLoanDetails(loan) {
-        $('#loanTransactionId').text(loan.transaction_id);
-        $('#loanCreatedBy').text(loan.created_by);
-        $('#loanBusinessAge').text(loan.business_age);
-        $('#loanIndustry').text(loan.industry);
-        $('#loanPurpose').text(loan.loan_purpose);
-        $('#loanAmount').text(loan.loan_amount);
-        $('#loanHasDocuments').text(loan.has_documents);
-        $('#loanRepaymentDuration').text(loan.repayment_duration);
-        $('#loanCustomerName').text(loan.customer_name);
-        // Clear existing badge classes
-        $('#loanStatus').removeClass().addClass('badge');
-        // Set badge text and color based on status
-        var badgeText = loan.status;
-        var badgeColor = getBadgeColor(loan.status);
-        $('#loanStatus').text(badgeText).addClass('badge badge-' + badgeColor);
-    }
-    
-    
-    // Logic for creating a new corporate loan
+   // Logic for creating a new corporate loan
 $('#createCorporateLoanForm').submit(function(e) {
     e.preventDefault();
 
@@ -291,6 +349,10 @@ $('#createCorporateLoanForm').submit(function(e) {
     formData.append('loan_purpose', $('#loanPurpose').val());
     formData.append('has_documents', $('#hasDocuments').val());
     formData.append('repayment_duration', $('#repaymentDuration').val());
+
+    if ($('#hasDocuments').val() === 'Yes') {
+        formData.append('document_link', $('#corporateLoanDocumentLink').val());
+    }
 
     $.ajax({
         type: 'POST',
@@ -310,8 +372,6 @@ $('#createCorporateLoanForm').submit(function(e) {
         }
     });
 });
-
-
 
       // Function to fetch recent corporate loans
     function fetchCorporateLoans(userId) {
@@ -368,9 +428,9 @@ $('#createCorporateLoanForm').submit(function(e) {
             }
         });
     }
-    
-// Edit Corporate Loan Modal
-$(document).on('click', '.edit-corporate-loan', function(event) {
+ // Edit Corporate Loan Modal
+   // Edit Corporate Loan Modal
+   $(document).on('click', '.edit-corporate-loan', function(event) {
     event.preventDefault();
     var loanId = $(this).data('id');
     // Fetch loan details
@@ -382,7 +442,7 @@ $(document).on('click', '.edit-corporate-loan', function(event) {
             // Now, userId is available here, proceed with fetching loan details
             $.ajax({
                 type: 'GET',
-                url: '/customers/corporate-loan/' + encodeURIComponent(userId) + '/' + encodeURIComponent(loanId) + '/', // Encode userId and loanId
+                url: '/customers/corporate-loan/' + encodeURIComponent(userId) + '/' + encodeURIComponent(loanId) + '/',
                 success: function(response) {
                     var loan = response.data;
                     // Populate modal fields with loan details
@@ -393,6 +453,15 @@ $(document).on('click', '.edit-corporate-loan', function(event) {
                     $('#editLoanAmount').val(loan.loan_amount);
                     $('#editHasDocuments').val(loan.has_documents);
                     $('#editRepaymentDuration').val(loan.repayment_duration);
+
+                    // Toggle document link field visibility
+                    toggleEditDocumentLink(); // Call function to handle visibility
+
+                    // Populate document link if available
+                    if (loan.has_documents === 'Yes') {
+                        $('#editCorporateLoanDocumentLink').val(loan.document_link);
+                    }
+
                     $('#editCorporateLoanModal').modal('show');
                 },
                 error: function(xhr, textStatus, errorThrown) {
@@ -419,15 +488,23 @@ $(document).on('click', '.edit-corporate-loan', function(event) {
 // Update Corporate Loan
 $('#editCorporateLoanForm').submit(function(event) {
     event.preventDefault();
-    var formData = $(this).serialize();
+    var formData = new FormData($(this)[0]);
     var loanId = $('#editLoanId').val();
+
+    // Append document link to formData if applicable
+    if ($('#editHasDocuments').val() === 'Yes') {
+        formData.append('document_link', $('#editCorporateLoanDocumentLink').val());
+    }
+
     $.ajax({
         type: 'PUT',
         url: '/customers/corporate-loan/update/' + encodeURIComponent(loanId) + '/',
         data: formData,
+        processData: false,
+        contentType: false,
         success: function(response) {
             Swal.fire({
-                icon: 'success',
+                icon:'success',
                 title: 'Success',
                 text: 'Corporate loan updated successfully.'
             }).then(function() {
@@ -445,6 +522,12 @@ $('#editCorporateLoanForm').submit(function(event) {
         }
     });
 });
+
+// Initialize the document link visibility on page load
+$(document).ready(function() {
+    toggleEditDocumentLink();
+});
+
 
 // Delete Corporate Loan
 $(document).on('click', '.delete-corporate-loan', function(event) {

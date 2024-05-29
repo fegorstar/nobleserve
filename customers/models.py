@@ -102,7 +102,6 @@ class TargetSaving(models.Model):
     def __str__(self):
         return self.created_by.email if self.created_by else ''
 
-
 class LeaseFinancing(models.Model):
     YES = 'Yes'
     NO = 'No'
@@ -125,21 +124,21 @@ class LeaseFinancing(models.Model):
         prefix="NBL_",
         alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-",
     )
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE)  # customer name
-    status = models.CharField(
-        choices=transaction_status_choices, max_length=100, default='Pending')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)  # customer name
+    status = models.CharField(choices=transaction_status_choices, max_length=100, default='Pending')
     equipment_type = models.CharField(max_length=255)
     equipment_amount = models.DecimalField(max_digits=12, decimal_places=2)
     has_funding = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
     acquisition_timeline = models.CharField(max_length=100)
     has_documents = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
+    document_link = models.URLField(max_length=200, blank=True)
     repayment_duration = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
 
     def __str__(self):
         return f"Lease Financing - {self.id}"
 
+   
 
 class CorporateLoan(models.Model):
     YES = 'Yes'
@@ -163,16 +162,17 @@ class CorporateLoan(models.Model):
         prefix="NBL_",
         alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-",
     )
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE)  # customer name
-    status = models.CharField(
-        choices=transaction_status_choices, max_length=100, default='Pending')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)  # customer name
+    status = models.CharField(choices=transaction_status_choices, max_length=100, default='Pending')
     business_age = models.PositiveIntegerField()
     industry = models.CharField(max_length=255)
     loan_purpose = models.TextField()
     loan_amount = models.DecimalField(max_digits=12, decimal_places=2)
     has_documents = models.CharField(choices=BOOLEAN_CHOICES, max_length=3)
+    document_link = models.URLField(max_length=200, blank=True)
     repayment_duration = models.CharField(max_length=100)
 
     def __str__(self):
         return f"Corporate Loan - {self.id}"
+
+   

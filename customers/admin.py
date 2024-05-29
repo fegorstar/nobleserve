@@ -40,7 +40,7 @@ class CustomTargetSaving(admin.ModelAdmin):
 
 class CustomLeaseFinancing(admin.ModelAdmin):
     list_display = ('created_by', 'equipment_type', 'equipment_amount', 'has_funding',
-                    'acquisition_timeline', 'has_documents', 'repayment_duration', 'location')
+                    'acquisition_timeline', 'has_documents', 'document_link', 'repayment_duration', 'location')
     ordering = ('-id',)
     filter_horizontal = ()
     list_filter = ()
@@ -49,7 +49,7 @@ class CustomLeaseFinancing(admin.ModelAdmin):
 
 class CustomCorporateLoan(admin.ModelAdmin):
     list_display = ('created_by', 'business_age', 'industry', 'loan_purpose',
-                    'loan_amount', 'has_documents', 'repayment_duration')
+                    'loan_amount', 'has_documents', 'document_link', 'repayment_duration')
     ordering = ('-id',)
     filter_horizontal = ()
     list_filter = ()

@@ -81,10 +81,11 @@
         <p><strong>Has Funding:</strong> <span id="leaseHasFunding"></span></p>
         <p><strong>Acquisition Timeline:</strong> <span id="leaseAcquisitionTimeline"></span></p>
         <p><strong>Has Documents:</strong> <span id="leaseHasDocuments"></span></p>
+        <p><strong>Document Link:</strong> <span id="leaseDocumentLink"></span></p>
         <p><strong>Repayment Duration:</strong> <span id="leaseRepaymentDuration"></span></p>
         <p><strong>Location:</strong> <span id="leaseLocation"></span></p>
         <p><strong>Customer Name:</strong> <span id="leaseCustomerName"></span></p>
-        <p><strong>Status:</strong> <span id="leaseStatus"></span></p>
+        <p><strong>Status:</strong> <span id="leaseStatus" class="badge"></span></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -106,53 +107,78 @@
       <form id="createLeaseFinancingForm">
         <div class="modal-body">
           <div class="form-group">
-            <label for="createEquipmentType">Equipment Type</label>
-            <input type="text" class="form-control" id="createEquipmentType" name="equipmentType">
+            <label for="createEquipmentType">What type of equipment are you looking at leasing?</label>
+            <input type="text" class="form-control" id="createEquipmentType" name="equipmentType" required>
           </div>
           <div class="form-group">
-            <label for="createEquipmentAmount">Equipment Amount</label>
-            <input type="number" class="form-control" id="createEquipmentAmount" name="equipmentAmount">
+            <label for="createEquipmentAmount">Amount of equipment to be purchased</label>
+            <input type="number" class="form-control" id="createEquipmentAmount" name="equipmentAmount" required>
           </div>
           <div class="form-group">
-            <label for="createHasFunding">Has Funding</label>
-            <select class="form-control form-select" id="createHasFunding" name="hasFunding">
+            <label for="createHasFunding">Do you have 30% of the total equipment cost?</label>
+            <select class="form-control form-select" id="createHasFunding" name="hasFunding" required>
               <option value="Yes">Yes</option>
               <option value="No">No</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="createAcquisitionTimeline">Acquisition Timeline</label>
-            <input type="date" class="form-control" id="createAcquisitionTimeline" name="acquisitionTimeline">
+            <label for="createAcquisitionTimeline">How soon do you intend to acquire this equipment?</label>
+            <input type="date" class="form-control" id="createAcquisitionTimeline" name="acquisitionTimeline" required>
           </div>
           <div class="form-group">
-            <label for="createHasDocuments">Has Documents</label>
-            <select class="form-control form-select" id="createHasDocuments" name="hasDocuments">
+            <label for="createHasDocuments">Do you have all the required documents?</label>
+            <select class="form-control form-select" id="createHasDocuments" name="hasDocuments" required onchange="toggleDocumentLink()">
+              <option value="">Select</option>
               <option value="Yes">Yes</option>
-              <option value ="No">No</option>
+              <option value="No">No</option>
             </select>
-            </div>
-            <div class="form-group">
-            <label for="createRepaymentDuration">Repayment Duration</label>
-            <input type="date" class="form-control" id="createRepaymentDuration" name="repaymentDuration">
-            </div>
-            <div class="form-group">
-            <label for="createLocation">Location</label>
-            <input type="text" class="form-control" id="createLocation" name="location">
-            </div>
-          
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Create</button>
-            </div>
-            </form>
-            </div>
-            
-              </div>
-            </div>
+          </div>
+          <div class="form-group" id="documentLinkGroup" style="display: none;">
+            <label for="createDocumentLink">Document Link</label>
+            <input type="url" class="form-control" id="createDocumentLink" name="documentLink">
+          </div>
+          <div class="form-group">
+            <label for="createRepaymentDuration">When do you intend to pay back (duration)?</label>
+            <input type="date" class="form-control" id="createRepaymentDuration" name="repaymentDuration" required>
+          </div>
+          <div class="form-group">
+            <label for="createLocation">Where do you reside? (location)</label>
+            <input type="text" class="form-control" id="createLocation" name="location" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
             {% include 'partials/dashboard/footer.html' %}
             
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+              function toggleDocumentLink() {
+                var hasDocuments = document.getElementById('createHasDocuments').value;
+                var documentLinkGroup = document.getElementById('documentLinkGroup');
+                var documentLinkInput = document.getElementById('createDocumentLink');
+            
+                if (hasDocuments === 'Yes') {
+                  documentLinkGroup.style.display = 'block';
+                  documentLinkInput.required = true;
+                } else {
+                  documentLinkGroup.style.display = 'none';
+                  documentLinkInput.required = false;
+                }
+              }
+              
+              // Initialize the document link visibility on page load
+              document.addEventListener('DOMContentLoaded', function() {
+                toggleDocumentLink();
+              });
+            </script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
             <script>
               $(document).ready(function() {
@@ -182,38 +208,59 @@
             });
             
             
-            // Logic for creating a new lease financing
-            $('#createLeaseFinancingForm').submit(function(e) {
-              e.preventDefault();
-            
-              var formData = {
-                  equipment_type: $('#createEquipmentType').val(),
-                  equipment_amount: $('#createEquipmentAmount').val(),
-                  has_funding: $('#createHasFunding').val(),
-                  acquisition_timeline: $('#createAcquisitionTimeline').val(),
-                  has_documents: $('#createHasDocuments').val(),
-                  repayment_duration: $('#createRepaymentDuration').val(),
-                  location: $('#createLocation').val(),
-                
-              };
-            
-              $.ajax({
-                  type: 'POST',
-                  url: '/customers/lease-financing/create/', // Change the URL to your endpoint for creating a new lease financing
-                  data: formData,
-                  success: function(response) {
-                      $('#newLeaseFinancingModal').modal('hide');
-                      // Optionally, you can update the UI or perform other actions upon successful creation
-                      Swal.fire('Success', 'Lease financing created successfully!', 'success');
-                      location.reload(); // Reload the page to refresh the list of lease financings
-                  },
-                  error: function(xhr, textStatus, errorThrown) {
-                      console.error(xhr.responseText);
-                      Swal.fire('Error', 'Failed to create lease financing. Please try again.', 'error');
-                  }
-              });
-            });
-            
+          // Logic for creating a new lease financing
+$('#createLeaseFinancingForm').submit(function(e) {
+  e.preventDefault();
+
+  var formData = {
+    equipment_type: $('#createEquipmentType').val(),
+    equipment_amount: $('#createEquipmentAmount').val(),
+    has_funding: $('#createHasFunding').val(),
+    acquisition_timeline: $('#createAcquisitionTimeline').val(),
+    has_documents: $('#createHasDocuments').val(),
+    document_link: $('#createDocumentLink').val(),
+    repayment_duration: $('#createRepaymentDuration').val(),
+    location: $('#createLocation').val()
+  };
+
+  $.ajax({
+    type: 'POST',
+    url: '/customers/lease-financing/create/', // Change the URL to your endpoint for creating a new lease financing
+    data: formData,
+    success: function(response) {
+      $('#newLeaseFinancingModal').modal('hide');
+      // Optionally, you can update the UI or perform other actions upon successful creation
+      Swal.fire('Success', 'Lease financing created successfully!', 'success');
+      location.reload(); // Reload the page to refresh the list of lease financings
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      console.error(xhr.responseText);
+      Swal.fire('Error', 'Failed to create lease financing. Please try again.', 'error');
+    }
+  });
+});
+
+// Initialize the document link visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+  toggleCreateDocumentLink();
+});
+
+// Toggle document link visibility based on "has_documents" selection
+function toggleCreateDocumentLink() {
+  var hasDocuments = $('#createHasDocuments').val();
+  if (hasDocuments === 'Yes') {
+    $('#createDocumentLinkGroup').show();
+    $('#createDocumentLink').prop('required', true);
+  } else {
+    $('#createDocumentLinkGroup').hide();
+    $('#createDocumentLink').val('');
+    $('#createDocumentLink').prop('required', false);
+  }
+}
+
+// Event listener for "has_documents" field change
+$('#createHasDocuments').on('change', toggleCreateDocumentLink);
+
             
             function fetchLeaseFinancings(userId) {
                 $.ajax({
@@ -283,128 +330,14 @@
                     }
                     
                     $(document).on('click', '.view-leasing', function(event) {
-                        event.preventDefault();
-                        var financingId = $(this).data('id');
-                        var encodedFinancingId = encodeURIComponent(financingId); // Encoding the financing ID
-                        viewLeaseFinancing(encodedFinancingId);
+                      event.preventDefault();
+                      var financingId = $(this).data('id');
+                      var encodedFinancingId = encodeURIComponent(financingId); // Encoding the financing ID
+                      viewLeaseFinancing(encodedFinancingId);
                     });
                     
                     function viewLeaseFinancing(financingId) {
-                        // Fetch user details first
-                        $.ajax({
-                            type: 'GET',
-                            url: '{% url "profile-detail" %}',
-                            success: function(response) {
-                                var userId = response.profile.id; // Get userId from the fetched user details
-                                // Now, userId is available here, proceed with fetching financing details
-                                $.ajax({
-                                    type: 'GET',
-                                    url: '/customers/lease-financing/' + userId + '/' + financingId + '/',
-                                    success: function(response) {
-                                        var financing = response.data;
-                                        // Populate modal fields with financing details
-                                        $('#leaseTransactionId').text(financing.transaction_id);
-                                        $('#leaseEquipmentType').text(financing.equipment_type);
-                                        $('#leaseEquipmentAmount').text(financing.equipment_amount);
-                                        $('#leaseHasFunding').text(financing.has_funding);
-                                        $('#leaseAcquisitionTimeline').text(financing.acquisition_timeline);
-                                        $('#leaseHasDocuments').text(financing.has_documents);
-                                        $('#leaseRepaymentDuration').text(financing.repayment_duration);
-                                        $('#leaseLocation').text(financing.location);
-                                        $('#leaseCustomerName').text(financing.customer_name);
-                                      
-                                        // Set badge text and color based on status
-                                        var badgeText = financing.status;
-                                        var badgeColor = getBadgeColor(financing.status);
-                                        $('#leaseStatus').text(badgeText).addClass('badge badge-' + badgeColor);
-                                        $('#leaseStatus').text(financing.status);
-                                        $('#viewLeaseFinancingModal').modal('show');
-                                    },
-                                    error: function(xhr, textStatus, errorThrown) {
-                                        console.error(xhr.responseText);
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: 'Unable to fetch financing details. Please try again later.'
-                                        });
-                                    }
-                                });
-                            },
-                            error: function(xhr, textStatus, errorThrown) {
-                                console.error(xhr.responseText);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Unable to fetch user details. Please try again later.'
-                                });
-                            }
-                        });
-                    }
-           
-                  </script>
-                    <!-- edit Lease Financing Modal -->
-                    <div class="modal fade text-left" id="editLeaseFinancingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h4 class="modal-title" id="myModalLabel2">Edit Lease Financing</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <form id="editLeaseFinancingForm">
-                            <div class="modal-body">
-                              <input type="hidden" id="editFinancingId" name="financingId">
-                              <div class="form-group">
-                                <label for="editEquipmentType">Equipment Type</label>
-                                <input type="text" class="form-control" id="editEquipmentType" name="equipmentType">
-                              </div>
-                              <div class="form-group">
-                                <label for="editEquipmentAmount">Equipment Amount</label>
-                                <input type="number" class="form-control" id="editEquipmentAmount" name="equipmentAmount">
-                              </div>
-                              <div class="form-group">
-                                <label for="editHasFunding">Has Funding</label>
-                                <select class="form-control form-select" id="editHasFunding" name="hasFunding">
-                                  <option value="Yes">Yes</option>
-                                  <option value="No">No</option>
-                                </select>
-                              </div>
-                              <div class="form-group">
-                                <label for="editAcquisitionTimeline">Acquisition Timeline</label>
-                                <input type="date" class="form-control" id="editAcquisitionTimeline" name="acquisitionTimeline">
-                              </div>
-                              <div class="form-group">
-                                <label for="editHasDocuments">Has Documents</label>
-                                <select class="form-control form-select" id="editHasDocuments" name="hasDocuments">
-                                  <option value="Yes">Yes</option>
-                                  <option value="No">No</option>
-                                </select>
-                              </div>
-                              <div class="form-group">
-                                <label for="editRepaymentDuration">Repayment Duration</label>
-                                <input type="date" class="form-control" id="editRepaymentDuration" name="repaymentDuration">
-                              </div>
-                              <div class="form-group">
-                                <label for="editLocation">Location</label>
-                                <input type="text" class="form-control" id="editLocation" name="location">
-                              </div>
-                            
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                              <button type="submit" class="btn btn-primary">Update</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                    <script>
-                      // Edit Lease Financing Modal
-                    $(document).on('click', '.edit-financing', function(event) {
-                      event.preventDefault();
-                      var financingId = $(this).data('id');
-                      // Fetch financing details
+                      // Fetch user details first
                       $.ajax({
                         type: 'GET',
                         url: '{% url "profile-detail" %}',
@@ -413,96 +346,259 @@
                           // Now, userId is available here, proceed with fetching financing details
                           $.ajax({
                             type: 'GET',
-                            url: '/customers/lease-financing/' + userId + '/' + encodeURIComponent(financingId) + '/',
+                            url: '/customers/lease-financing/' + userId + '/' + financingId + '/',
                             success: function(response) {
                               var financing = response.data;
                               // Populate modal fields with financing details
-                              $('#editFinancingId').val(financing.transaction_id);
-                              $('#editEquipmentType').val(financing.equipment_type);
-                              $('#editEquipmentAmount').val(financing.equipment_amount);
-                              $('#editHasFunding').val(financing.has_funding);
-                              $('#editAcquisitionTimeline').val(financing.acquisition_timeline);
-                              $('#editHasDocuments').val(financing.has_documents);
-                              $('#editRepaymentDuration').val(financing.repayment_duration);
-                              $('#editLocation').val(financing.location);
-                              $('#editCustomerName').val(financing.customer_name);
-                              $('#editLeaseFinancingModal').modal('show');
-                              },
-                              error: function(xhr, textStatus, errorThrown) {
-                              console.error(xhr.responseText);
-                              Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Unable to fetch financing details. Please try again later.'
-                              });
-                              }
-                              });
-                              },
-                              error: function(xhr, textStatus, errorThrown) {
-                              console.error(xhr.responseText);
-                              Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Unable to fetch user details. Please try again later.'
-                              });
-                              }
-                              });
-                              });
+                              $('#leaseTransactionId').text(financing.transaction_id);
+                              $('#leaseEquipmentType').text(financing.equipment_type);
+                              $('#leaseEquipmentAmount').text(financing.equipment_amount);
+                              $('#leaseHasFunding').text(financing.has_funding);
+                              $('#leaseAcquisitionTimeline').text(financing.acquisition_timeline);
+                              $('#leaseHasDocuments').text(financing.has_documents);
+                              $('#leaseRepaymentDuration').text(financing.repayment_duration);
+                              $('#leaseLocation').text(financing.location);
+                              $('#leaseCustomerName').text(financing.customer_name);
                               
-                              // Update Lease Financing
-                              $('#editLeaseFinancingForm').submit(function(event) {
-                              event.preventDefault();
-                              
-                              // Gather data from form fields
-                              var formData = {
-                              equipment_type: $('#editEquipmentType').val(),
-                              equipment_amount: $('#editEquipmentAmount').val(),
-                              has_funding: $('#editHasFunding').val(),
-                              acquisition_timeline: $('#editAcquisitionTimeline').val(),
-                              has_documents: $('#editHasDocuments').val(),
-                              repayment_duration: $('#editRepaymentDuration').val(),
-                              location: $('#editLocation').val(),
-                              customer_name: $('#editCustomerName').val()
-                              };
-                              
-                              var financingId = $('#editFinancingId').val(); // Corrected to match the input field
-                              
-                              // Check if financingId is not empty
-                              if (financingId) {
-                              $.ajax({
-                              type: 'PUT',
-                              url: '/customers/lease-financing/update/' + encodeURIComponent(financingId) + '/', // Ensure the URL is correct
-                              data: formData, // Pass form data directly
-                              success: function(response) {
-                              Swal.fire({
-                              icon: 'success',
-                              title: 'Success',
-                              text: 'Lease financing updated successfully.'
-                              }).then(function() {
-                              $('#editLeaseFinancingModal').modal('hide');
-                              location.reload();
-                              // Optionally, you can reload the page or update the UI as needed
-                              });
-                              },
-                              error: function(xhr, textStatus, errorThrown) {
-                              console.error(xhr.responseText);
-                              Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Failed to update lease financing. Please try again later.'
-                              });
-                              }
-                              });
+                              // Populate document link if available
+                              if (financing.has_documents === 'Yes' && financing.document_link) {
+                                $('#leaseDocumentLink').html('<a href="' + financing.document_link + '" target="_blank">View Document</a>');
                               } else {
-                              // Handle the case when financingId is empty
-                              console.error('Financing ID is empty');
-                              Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Financing ID is empty. Unable to update lease financing.'
-                              });
+                                $('#leaseDocumentLink').text('No documents provided');
                               }
+                    
+                              // Set badge text and color based on status
+                              var badgeText = financing.status;
+                              var badgeColor = getBadgeColor(financing.status);
+                              $('#leaseStatus').text(badgeText).addClass('badge badge-' + badgeColor);
+                              $('#leaseStatus').text(financing.status);
+                              $('#viewLeaseFinancingModal').modal('show');
+                            },
+                            error: function(xhr, textStatus, errorThrown) {
+                              console.error(xhr.responseText);
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Unable to fetch financing details. Please try again later.'
                               });
+                            }
+                          });
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                          console.error(xhr.responseText);
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Unable to fetch user details. Please try again later.'
+                          });
+                        }
+                      });
+                    }
+                    
+           
+                  </script>
+                 <!-- Edit Lease Financing Modal -->
+<div class="modal fade text-left" id="editLeaseFinancingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel2">Edit Lease Financing</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="editLeaseFinancingForm">
+        <div class="modal-body">
+          <input type="hidden" id="editFinancingId" name="financingId">
+          <div class="form-group">
+            <label for="editEquipmentType">What type of equipment are you looking at leasing?</label>
+            <input type="text" class="form-control" id="editEquipmentType" name="equipmentType">
+          </div>
+          <div class="form-group">
+            <label for="editEquipmentAmount">Amount of equipment to be purchased?</label>
+            <input type="number" class="form-control" id="editEquipmentAmount" name="equipmentAmount">
+          </div>
+          <div class="form-group">
+            <label for="editHasFunding">Do you have 30% of the total equipment cost?</label>
+            <select class="form-control form-select" id="editHasFunding" name="hasFunding">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editAcquisitionTimeline">How soon do you intend to acquire this equipment?</label>
+            <input type="date" class="form-control" id="editAcquisitionTimeline" name="acquisitionTimeline">
+          </div>
+          <div class="form-group">
+            <label for="editHasDocuments">Do you have all the required documents?</label>
+            <select class="form-control form-select" id="editHasDocuments" name="hasDocuments" onchange="toggleEditDocumentLink()">
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group" id="editDocumentLinkGroup" style="display: none;">
+            <label for="editDocumentLink">Document Link</label>
+            <input type="url" class="form-control" id="editDocumentLink" name="documentLink">
+          </div>
+          <div class="form-group">
+            <label for="editRepaymentDuration">When do you intend to pay back (duration)?</label>
+            <input type="date" class="form-control" id="editRepaymentDuration" name="repaymentDuration">
+          </div>
+          <div class="form-group">
+            <label for="editLocation">Where do you reside? (location)?</label>
+            <input type="text" class="form-control" id="editLocation" name="location">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function toggleEditDocumentLink() {
+    var hasDocuments = document.getElementById('editHasDocuments').value;
+    var documentLinkGroup = document.getElementById('editDocumentLinkGroup');
+    var documentLinkInput = document.getElementById('editDocumentLink');
+
+    if (hasDocuments === 'Yes') {
+      documentLinkGroup.style.display = 'block';
+      documentLinkInput.required = true;
+    } else {
+      documentLinkGroup.style.display = 'none';
+      documentLinkInput.required = false;
+    }
+  }
+
+  // Initialize the document link visibility on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleEditDocumentLink();
+  });
+</script>
+                    <script>
+                   // Edit Lease Financing Modal
+$(document).on('click', '.edit-financing', function(event) {
+  event.preventDefault();
+  var financingId = $(this).data('id');
+  // Fetch financing details
+  $.ajax({
+    type: 'GET',
+    url: '{% url "profile-detail" %}',
+    success: function(response) {
+      var userId = response.profile.id; // Get userId from the fetched user details
+      // Now, userId is available here, proceed with fetching financing details
+      $.ajax({
+        type: 'GET',
+        url: '/customers/lease-financing/' + userId + '/' + encodeURIComponent(financingId) + '/',
+        success: function(response) {
+          var financing = response.data;
+          // Populate modal fields with financing details
+          $('#editFinancingId').val(financing.transaction_id);
+          $('#editEquipmentType').val(financing.equipment_type);
+          $('#editEquipmentAmount').val(financing.equipment_amount);
+          $('#editHasFunding').val(financing.has_funding);
+          $('#editAcquisitionTimeline').val(financing.acquisition_timeline);
+          $('#editHasDocuments').val(financing.has_documents);
+          $('#editRepaymentDuration').val(financing.repayment_duration);
+          $('#editLocation').val(financing.location);
+
+          // Populate document link and toggle visibility
+          if (financing.has_documents === 'Yes') {
+            $('#editDocumentLinkGroup').show();
+            $('#editDocumentLink').val(financing.document_link);
+            $('#editDocumentLink').prop('required', true);
+          } else {
+            $('#editDocumentLinkGroup').hide();
+            $('#editDocumentLink').val('');
+            $('#editDocumentLink').prop('required', false);
+          }
+
+          $('#editLeaseFinancingModal').modal('show');
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          console.error(xhr.responseText);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Unable to fetch financing details. Please try again later.'
+          });
+        }
+      });
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      console.error(xhr.responseText);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Unable to fetch user details. Please try again later.'
+      });
+    }
+  });
+});
+
+// Update Lease Financing
+$('#editLeaseFinancingForm').submit(function(event) {
+  event.preventDefault();
+
+  // Gather data from form fields
+  var formData = {
+    equipment_type: $('#editEquipmentType').val(),
+    equipment_amount: $('#editEquipmentAmount').val(),
+    has_funding: $('#editHasFunding').val(),
+    acquisition_timeline: $('#editAcquisitionTimeline').val(),
+    has_documents: $('#editHasDocuments').val(),
+    document_link: $('#editDocumentLink').val(),
+    repayment_duration: $('#editRepaymentDuration').val(),
+    location: $('#editLocation').val()
+  };
+
+  var financingId = $('#editFinancingId').val(); // Corrected to match the input field
+
+  // Check if financingId is not empty
+  if (financingId) {
+    $.ajax({
+      type: 'PUT',
+      url: '/customers/lease-financing/update/' + encodeURIComponent(financingId) + '/', // Ensure the URL is correct
+      data: formData, // Pass form data directly
+      success: function(response) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Lease financing updated successfully.'
+        }).then(function() {
+          $('#editLeaseFinancingModal').modal('hide');
+          location.reload();
+          // Optionally, you can reload the page or update the UI as needed
+        });
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.error(xhr.responseText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update lease financing. Please try again later.'
+        });
+      }
+    });
+  } else {
+    // Handle the case when financingId is empty
+    console.error('Financing ID is empty');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Financing ID is empty. Unable to update lease financing.'
+    });
+  }
+});
+
+// Initialize the document link visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+  toggleEditDocumentLink();
+});
+
                               
                               // Delete Lease Financing
                               $(document).on('click', '.delete-financing', function(event) {

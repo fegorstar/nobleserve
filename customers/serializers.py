@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from .models import PersonalLoan, TargetSaving, LeaseFinancing, CorporateLoan
 from rest_framework import serializers
 from accounts.models import User
@@ -66,9 +67,15 @@ class LeaseFinancingSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaseFinancing
         fields = ['transaction_id', 'equipment_type', 'equipment_amount', 'has_funding',
-                  'acquisition_timeline', 'has_documents', 'repayment_duration', 'location',  'status']
+                  'acquisition_timeline', 'has_documents', 'document_link', 'repayment_duration', 'location', 'status']
         read_only_fields = ['transaction_id',
-                            'created_at', 'modified_at',  'status']
+                            'created_at', 'modified_at', 'status']
+
+    def validate(self, data):
+        if data.get('has_documents') == LeaseFinancing.YES and not data.get('document_link'):
+            raise ValidationError(
+                {"document_link": "This field is required when documents are provided."})
+        return data
 
 
 class GetLeaseFinancingSerializer(serializers.ModelSerializer):
@@ -78,7 +85,7 @@ class GetLeaseFinancingSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaseFinancing
         fields = ['transaction_id', 'created_by', 'equipment_type', 'equipment_amount', 'has_funding', 'acquisition_timeline',
-                  'has_documents', 'repayment_duration', 'location', 'customer_name', 'user_id',  'status']
+                  'has_documents', 'document_link', 'repayment_duration', 'location', 'customer_name', 'user_id', 'status']
         read_only_fields = ['transaction_id', 'created_at',
                             'modified_at', 'customer_name', 'user_id']
 
@@ -93,9 +100,15 @@ class CorporateLoanSerializer(serializers.ModelSerializer):
     class Meta:
         model = CorporateLoan
         fields = ['transaction_id', 'business_age', 'industry', 'loan_purpose',
-                  'loan_amount', 'has_documents', 'repayment_duration',  'status']
+                  'loan_amount', 'has_documents', 'document_link', 'repayment_duration', 'status']
         read_only_fields = ['transaction_id',
-                            'created_at', 'modified_at',  'status']
+                            'created_at', 'modified_at', 'status']
+
+    def validate(self, data):
+        if data.get('has_documents') == CorporateLoan.YES and not data.get('document_link'):
+            raise ValidationError(
+                {"document_link": "This field is required when documents are provided."})
+        return data
 
 
 class GetCorporateLoanSerializer(serializers.ModelSerializer):
@@ -105,7 +118,7 @@ class GetCorporateLoanSerializer(serializers.ModelSerializer):
     class Meta:
         model = CorporateLoan
         fields = ['transaction_id', 'created_by', 'business_age', 'industry', 'loan_purpose', 'loan_amount',
-                  'has_documents', 'repayment_duration', 'customer_name', 'user_id',  'status']
+                  'has_documents', 'document_link', 'repayment_duration', 'customer_name', 'user_id', 'status']
         read_only_fields = ['transaction_id', 'created_at',
                             'modified_at', 'customer_name', 'user_id']
 
