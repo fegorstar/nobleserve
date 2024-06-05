@@ -51,8 +51,8 @@
                             <div class="bg-gradient px-4 py-3">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="mr-1">
-                                        <h4 class="text-white mb-0">Alice Williams</h4>
-                                        <small class="text-white">Henry@example.com</small>
+                                        <h4 class="text-white mb-0" id="user-first-name"></h4>
+                                        <small class="text-white" id="user-email"></small>
                                     </div>
                                 </div>
                             </div>
@@ -78,7 +78,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Your JavaScript code goes here
         // Function to check if user is authenticated
         function checkAuthentication() {
             // Retrieve access token from local storage
@@ -112,7 +111,6 @@
         }
         
         // Function to fetch user details and update header
-        // Function to fetch user details and update header
         function fetchUserDetails() {
             // Check if user is authenticated
             if (!checkAuthentication()) {
@@ -129,24 +127,18 @@
                 }
             });
         
-            // Fetch user details using the access token
+            // Fetch user details using the new endpoint
             $.ajax({
                 type: 'GET',
-                url: '{% url "profile-detail" %}',
+                url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/profile',
                 success: function(response) {
                     // Access the profile data correctly
-                    var profile = response.profile;
+                    var profile = response.data;
         
-                    // Update user's first name in the header
-                    $('#user-first-name').text('Welcome, ' + profile.first_name);
-                    // Update user's profile image in the header
-                    var profileImage = profile.profile_picture;
-                    if (profileImage) {
-                        $('#user-profile-image').attr('src', profileImage);
-                    } else {
-                        // If profile image is not available, use default image
-                        $('#user-profile-image').attr('src', '{% static "assets/img/profile-default.png" %}');
-                    }
+                    // Update user's name in the header
+                    $('#user-first-name').text('Welcome, ' + profile.name);
+                    // Update user's email in the header
+                    $('#user-email').text(profile.email);
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     // Handle error
@@ -169,14 +161,14 @@
             }).join(''));
         
             // Parse the decoded payload as JSON
-            var payload
-            = JSON.parse(decodedPayload);
+            var payload = JSON.parse(decodedPayload);
             
             // Get the expiration time from the payload
             var expirationTime = payload.exp;
             
             // Get the current time in seconds
-            var currentTime = Math.floor(Date.now() / 1000);
+            var currentTime = Math.floor(Date.now() / 
+            1000);
             
             // Check if the current time is greater than or equal to the expiration time
             // If the token has expired, return true; otherwise, return false

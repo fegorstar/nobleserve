@@ -68,7 +68,7 @@ class RegisterView(generics.GenericAPIView):
 
     @staticmethod
     def send_notification_email(user, verification_code):
-        organization_email = 'abighe-simon.pius@datasphir.com'
+        organization_email = 'noblepay@nobleservefinance.com'
         organization_name = 'Nobleserve Finance'
         user_full_name = f'{user.first_name} {user.last_name}'
         user_email = user.email
@@ -294,8 +294,9 @@ class LoginAPIView(APIView):
     def send_verification_email(self, user, email, OrgName, support_email, verification_code):
         token = RefreshToken.for_user(user).access_token
         current_site = get_current_site(self.request).domain
+
         verification_link = 'http://' + current_site + \
-            '/verify-email/?verification_code=' + str(verification_code)
+            '/auth/verification/?verification_code=' + str(verification_code)
         context = {
             'user': user,
             'organization_name': OrgName,

@@ -1,0 +1,280 @@
+{% extends "administrator/Admindashboardbase.html" %}
+{% load static %}
+{% block title %} Dashboard {% endblock %}
+{% load widget_tweaks %}
+{% block content %}
+<head>
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+</head>
+{% include 'administrator/partials/header.html' %}
+{% include 'administrator/partials/sidebar.html' %}
+
+<div class="app-container">
+    <div class="app-main" id="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-statistics">
+                        <div class="card-body">
+                            <div class="datatable-wrapper table-responsive">
+                                <table id="target-savings-table" class="display compact table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="checkAll"></th>
+                                            <th>Action</th>
+                                            <th>Name</th>
+                                            <th>Status</th>
+                                            <th>Amount</th>
+                                            <th>Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Table rows will be dynamically generated here -->
+                                    </tbody>
+                                </table>
+                                <div id="processing-message" style="display: none;"><img src="{% static 'assets/processing.gif' %}" alt="Loading..."></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+<!-- Modal for viewing target savings details -->
+<div class="modal fade" id="viewSavingModal" tabindex="-1" role="dialog" aria-labelledby="viewSavingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewSavingModalLabel">View Target Savings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="savingDetails">
+                <!-- Loader element -->
+                <div id="loader" style="display: none; text-align: center; padding: 20px;">
+                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                </div>
+                <!-- Saving details will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'administrator/partials/footer.html' %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var dataTable = $('#target-savings-table').DataTable({
+            processing: true,
+            serverSide: false,
+            searching: true,
+            language: {
+                "emptyTable": "Processing..."
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return '<input type="checkbox" class="row-checkbox" data-id="' + row.id + '">';
+                    }
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return '<div class="dropdown">' +
+                                    '<button class="btn btn-primary dropdown-toggle" type="button" id="actionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                                        'Action' +
+                                    '</button>' +
+                                    '<div class="dropdown-menu" aria-labelledby="actionDropdown">' +
+                                        '<a class="dropdown-item view-saving" href="#" data-id="' + row.id + '">View</a>' +
+                                    '</div>' +
+                                '</div>';
+                    }
+                },
+                { data: 'name', render: formatData },
+                {
+                    data: 'status',
+                    render: function(data, type, row) {
+                        return formatStatus(data);
+                    }
+                },
+                {
+                    data: 'amount',
+                    render: function(data, type, row) {
+                        return '₦' + data.toLocaleString();
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return '<span style="word-wrap: break-word; white-space: pre-wrap; font-size: 12px;">' + formatDate(data) + '</span>';
+                    }
+                }
+            ]
+        });
+    
+        function formatData(data) {
+            return '<span style="word-wrap: break-word; white-space: pre-wrap; font-size: 12px;">' + data + '</span>';
+        }
+    
+        function formatStatus(status) {
+            var badgeClass;
+            switch(status.toLowerCase()) {
+                case 'active':
+                    badgeClass = 'badge-success';
+                    break;
+                case 'pending':
+                    badgeClass = 'badge-warning';
+                    break;
+                case 'inactive':
+                    badgeClass = 'badge-danger';
+                    break;
+                default:
+                    badgeClass = 'badge-secondary';
+            }
+            return '<span class="badge ' + badgeClass + '">' + status + '</span>';
+        }
+    
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+            const formattedDate = date.toLocaleString('en-US', options);
+            const day = date.getDate();
+            const suffix = getDaySuffix(day);
+            return formattedDate.replace(day, day + suffix);
+        }
+    
+        function getDaySuffix(day) {
+            if (day > 3 && day < 21) return 'th'; // 4th to 20th
+            switch (day % 10) {
+                case 1: return "st";
+                case 2: return "nd";
+                case 3: return "rd";
+                default: return "th";
+            }
+        }
+    
+        $('#target-savings-table').DataTable().columns().every(function () {
+            var column = this;
+            column.nodes().to$().css('word-wrap', 'break-word');
+            column.nodes().to$().css('white-space', 'pre-wrap');
+            column.nodes().to$().css('font-size', '12px');
+        });
+    
+        var accessToken = localStorage.getItem('access_token');
+    
+        if (!accessToken) {
+            console.error('Access token not found in local storage');
+            return;
+        }
+    
+        $.ajax({
+            url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/savings/list?type=TARGET',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function (response) {
+                if (response.message === "success") {
+                    dataTable.clear();
+                    dataTable.rows.add(response.data);
+                    dataTable.draw();
+                } else {
+                    console.error('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error: ' + error);
+            },
+            complete: function() {
+                if (dataTable.data().count() === 0) {
+                    $('#processing-message').show();
+                }
+            }
+        });
+    
+        $('#checkAll').click(function () {
+            $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+    
+        $('input:checkbox').click(function () {
+            if ($('input:checkbox:checked').length === $('input:checkbox').length) {
+                $('#checkAll').prop('checked', true);
+            } else {
+                $('#checkAll').prop('checked', false);
+            }
+        });
+    
+        function viewSavingDetails(savingId) {
+            $('#viewSavingModal').modal('show');
+            $('#loader').show();
+    
+            var accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                console.error('Access token not found in local storage');
+                return;
+            }
+            $.ajax({
+                url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/savings/show/' + savingId,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                },
+                success: function (response) {
+                    if (response.message === "success") {
+                        console.log('Saving data:', response.data); // Debug log
+                        var savingData = response.data;
+                        var createdAt = formatDate(savingData.created_at);
+                        var modalContent = '<div class="table-responsive">';
+                        modalContent += '<table class="table table-bordered">';
+                        modalContent += '<tr><th>Field</th><th>Value</th></tr>';
+                        modalContent += '<tr><td>Name</td><td>' + savingData.name + '</td></tr>';
+                        modalContent += '<tr><td>Status</td><td>' + formatStatus(savingData.status) + '</td></tr>';
+                        modalContent += '<tr><td>Amount</td><td>₦' + savingData.amount.toLocaleString() + '</td></tr>';
+                        modalContent += '<tr><td>Saving Target</td><td>₦' + savingData.saving_target.toLocaleString() + '</td></tr>';
+                        modalContent += '<tr><td>Saving Purpose</td><td>' + savingData.saving_purpose + '</td></tr>';
+                        modalContent += '<tr><td>Duration</td><td>' + savingData.duration + '</td></tr>';
+                        modalContent += '<tr><td>Created At</td><td>' + createdAt + '</td></tr>';
+                        modalContent += '</table>';
+                        modalContent += '</div>';
+                        $('#savingDetails').html(modalContent);
+                    } else {
+                        console.error('Error: ' + response.message); // Debug log
+                        $('#savingDetails').html('<p>Error: ' + response.message + '</p>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error); // Debug log
+                    $('#savingDetails').html('<p>Error: ' + error + '</p>');
+                },
+                complete: function() {
+                    $('#loader').hide();
+                }
+            });
+        }
+    
+        $(document).on('click', '.view-saving', function (e) {
+            e.preventDefault();
+            var savingId = $(this).data('id');
+            viewSavingDetails(savingId);
+        });
+    
+        $('#viewSavingModal').on('hidden.bs.modal', function () {
+            $('#savingDetails').html('');
+        });
+    
+        $(document).ready(function() {
+            $('body').show();
+        });
+    });
+</script>
+{% endblock %}

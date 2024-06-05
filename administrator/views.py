@@ -46,3 +46,7 @@ def approvedloans(request):
 
 def declinedloans(request):
     return render(request, 'administrator/pages/declinedloans.html')
+
+
+def targetsavings(request):
+    return render(request, 'administrator/pages/targetsavings.html')
