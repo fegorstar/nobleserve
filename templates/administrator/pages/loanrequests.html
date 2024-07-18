@@ -142,7 +142,7 @@
         }
     
         $.ajax({
-            url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/loan/list',
+            url: '{{ BASE_API_URL }}/admin/loan/list',
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accessToken
@@ -195,7 +195,7 @@ function viewLoanDetails(loanId) {
         return;
     }
     $.ajax({
-        url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/loan/single-loan/' + loanId,
+        url: '{{ BASE_API_URL }}/admin/loan/single-loan/' + loanId,
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + accessToken
@@ -257,7 +257,7 @@ function moveToAwaitingDisbursement(loanId) {
         return;
     }
     $.ajax({
-        url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/loan/move-loan-to-awaiting-disbursment',
+        url: '{{ BASE_API_URL }}/admin/loan/move-loan-to-awaiting-disbursment',
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,

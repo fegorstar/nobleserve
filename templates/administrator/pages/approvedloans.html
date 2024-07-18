@@ -119,7 +119,7 @@
             return;
         }
         $.ajax({
-            url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/loan/list?sort=ACTIVE',
+            url: '{{ BASE_API_URL }}/admin/loan/list?sort=ACTIVE',
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accessToken
@@ -173,9 +173,67 @@
         });
     });
 
-    function moveToAwaitingDisbursement(id) {
-        // Implement logic to move loan to awaiting disbursement using the provided id
+// Function to move loan to awaiting disbursement
+function moveToAwaitingDisbursement(loanId) {
+    var accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+        console.error('Access token not found in local storage');
+        return;
     }
-</script>
+    $.ajax({
+        url: '{{ BASE_API_URL }}/admin/loan/move-loan-to-awaiting-disbursment',
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({ 'loan_id': loanId }),
+        success: function (response) {
+            if (response && response.status) {
+                // Show success message from server response
+                Swal.fire({
+                    title: 'Success!',
+                    text: response.message || 'Disbursement will happen soon',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                // Handle specific error message for failed request
+                if (response && response.message && !response.status) {
+                    // Show error message from server response
+                    Swal.fire({
+                        title: 'Info!',
+                        text: response.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error: ' + error);
+            // Show generic error message for failed request
+            Swal.fire({
+                title: 'Info!',
+                text: xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to move loan to awaiting disbursement. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
 
-{% endblock content %}
+// Bind click event to move loan to awaiting disbursement
+$(document).on('click', '.move-to-awaiting-disbursement', function (e) {
+    e.preventDefault();
+    var loanId = $(this).data('id');
+    moveToAwaitingDisbursement(loanId);
+});
+                  
+                            </script>
+                            
+                
+                            {% endblock content %}
+                            

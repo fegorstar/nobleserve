@@ -178,7 +178,7 @@
         }
     
         $.ajax({
-            url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/savings/list?type=TARGET',
+            url: '{{ BASE_API_URL }}/admin/savings/list?type=TARGET',
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accessToken
@@ -224,7 +224,7 @@
                 return;
             }
             $.ajax({
-                url: 'http://noblepay.techsavvyteacherintl.com/public/api/v1/admin/savings/show/' + savingId,
+                url: '{{ BASE_API_URL }}/admin/savings/show/' + savingId,
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + accessToken
