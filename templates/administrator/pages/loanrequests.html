@@ -8,8 +8,33 @@
         body {
             display: none;
         }
+        .modal-dialog {
+            max-width: 80%;
+        }
+        .modal-body .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .modal-body .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 10px;
+        }
+        .modal-body .col-md-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 10px;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        table tr th {
+            background-color: #f5f5f5;
+        }
     </style>
 </head>
+
 {% include 'administrator/partials/header.html' %}
 {% include 'administrator/partials/sidebar.html' %}
 
@@ -28,7 +53,7 @@
                                             <th>Action</th>
                                             <th>Name</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th> <!-- Added Email column header -->
+                                            <th>Email</th>
                                             <th>Status</th>
                                             <th>Amount</th>
                                             <th>Created At</th>
@@ -48,26 +73,21 @@
     </div>
 </div>
 
-
-
-
-            <!-- Modal for viewing loan details -->
-       <!-- Modal for viewing loan details -->
+<!-- Modal for viewing loan details -->
 <div class="modal fade" id="viewLoanModal" tabindex="-1" role="dialog" aria-labelledby="viewLoanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewLoanModalLabel">View Loan Request</h5>
+                <h5 class="modal-title" id="viewLoanModalLabel">Loan Details</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="loanDetails">
-                <!-- Loader element -->
+                <!-- Loan details will be dynamically inserted here -->
                 <div id="loader" style="display: none; text-align: center; padding: 20px;">
                     <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
                 </div>
-                <!-- Loan details will be displayed here -->
             </div>
         </div>
     </div>
@@ -102,15 +122,14 @@
                                     '</button>' +
                                     '<div class="dropdown-menu" aria-labelledby="actionDropdown">' +
                                         '<a class="dropdown-item view-loan" href="#" data-id="' + row.id + '">View</a>' +
-                                   
                                         '<a class="dropdown-item move-to-awaiting-disbursement" href="#" data-id="' + row.id + '">Move Loan To Awaiting Disbursement</a>' +
-                                                 '</div>' +
+                                    '</div>' +
                                 '</div>';
                     }
                 },
                 { data: 'full_name', render: formatData },
                 { data: 'phone_number', render: formatData },
-                { data: 'customer.email', render: formatData }, // Added Email column data
+                { data: 'customer.email', render: formatData }, <!-- Added Email column data -->
                 { data: 'status', render: formatData },
                 { data: 'amount', render: formatData },
                 {
@@ -165,7 +184,7 @@
                 }
             }
         });
-    
+
         // Check all checkbox
         $('#checkAll').click(function () {
             $('input:checkbox').not(this).prop('checked', this.checked);
@@ -180,136 +199,81 @@
             }
         });
 
-     // Function to fetch loan details and display them in the modal
-// Function to fetch loan details and display them in the modal
-function viewLoanDetails(loanId) {
-    // Show the modal immediately
-    $('#viewLoanModal').modal('show');
-    
-    // Show loader
-    $('#loader').show();
-    
-    var accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-        console.error('Access token not found in local storage');
-        return;
-    }
-    $.ajax({
-        url: '{{ BASE_API_URL }}/admin/loan/single-loan/' + loanId,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + accessToken
-        },
-        success: function (response) {
-            if (response.message === "Loan exist") {
-                var loanData = response.data;
-                var createdAt = new Date(loanData.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                var amountWithNairaSign = '₦' + loanData.amount; // Add Naira sign before the amount
-                var modalContent = '<div class="table-responsive">';
-                modalContent += '<table class="table table-bordered">';
-                modalContent += '<tr><th>Field</th><th>Value</th></tr>';
-                modalContent += '<tr><td>Full Name</td><td>' + loanData.full_name + '</td></tr>';
-                modalContent += '<tr><td>Phone Number</td><td>' + loanData.phone_number + '</td></tr>';
-                modalContent += '<tr><td>Email</td><td>' + loanData.customer.email + '</td></tr>';
-                modalContent += '<tr><td>Status</td><td>' + loanData.status + '</td></tr>';
-                modalContent += '<tr><td>Amount</td><td>' + amountWithNairaSign + '</td></tr>';
-                modalContent += '<tr><td>Created At</td><td>' + createdAt + '</td></tr>';
-                modalContent += '<tr><td>Reason for Loan</td><td>' + loanData.reason_for_loan + '</td></tr>';
-                modalContent += '<tr><td>Date of Birth</td><td>' + loanData.dob + '</td></tr>';
-                modalContent += '<tr><td>Occupation</td><td>' + loanData.occupation + '</td></tr>';
-                modalContent += '<tr><td>Residential Address</td><td>' + loanData.residential_address + '</td></tr>';
-                modalContent += '<tr><td>Employment Status</td><td>' + loanData.employment_status + '</td></tr>';
-                modalContent += '<tr><td>Company Name</td><td>' + loanData.company_name + '</td></tr>';
-                modalContent += '<tr><td>Job Type</td><td>' + loanData.job_type + '</td></tr>';
-                modalContent += '<tr><td>Occupation Address</td><td>' + loanData.occupation_address + '</td></tr>';
-                modalContent += '<tr><td>Bank Name</td><td>' + loanData.bank_name + '</td></tr>';
-                modalContent += '<tr><td>Account Bank Name</td><td>' + loanData.account_bank_name + '</td></tr>';
-                modalContent += '<tr><td>Account Bank Number</td><td>' + loanData.account_bank_number + '</td></tr>';
-                modalContent += '</table>';
-                modalContent += '</div>';
-                $('#loanDetails').html(modalContent); // Display loan details in the modal
-            } else {
-                console.error('Error: ' + response.message);
+        // Function to fetch loan details and display them in the modal
+        function viewLoanDetails(loanId) {
+            // Show the modal immediately
+            $('#viewLoanModal').modal('show');
+            
+            // Show loader
+            $('#loader').show();
+            
+            var accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                console.error('Access token not found in local storage');
+                return;
             }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error: ' + error);
-        },
-        complete: function() {
-            // Hide loader after data is loaded
-            $('#loader').hide();
-        }
-    });
-}
 
+            $.ajax({
+                url: '{{ BASE_API_URL }}/admin/loan/single-loan/' + loanId,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                },
+                success: function (response) {
+                    if (response.message === "Loan exist") {
+                        var loanData = response.data;
 
-// Bind click event to view loan details
-$(document).on('click', '.view-loan', function (e) {
-    e.preventDefault();
-    var loanId = $(this).data('id');
-    viewLoanDetails(loanId); // Call the function to fetch and display loan details
-});
-// Function to move loan to awaiting disbursement
-function moveToAwaitingDisbursement(loanId) {
-    var accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-        console.error('Access token not found in local storage');
-        return;
-    }
-    $.ajax({
-        url: '{{ BASE_API_URL }}/admin/loan/move-loan-to-awaiting-disbursment',
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + accessToken,
-            'Content-Type': 'application/json'
-        },
-        data: JSON.stringify({ 'loan_id': loanId }),
-        success: function (response) {
-            if (response && response.status) {
-                // Show success message from server response
-                Swal.fire({
-                    title: 'Success!',
-                    text: response.message || 'Disbursement will happen soon',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                // Handle specific error message for failed request
-                if (response && response.message && !response.status) {
-                    // Show error message from server response
-                    Swal.fire({
-                        title: 'Info!',
-                        text: response.message,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                        var modalContent = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tr><th colspan="2">Loan Data</th></tr>
+                                            <tr><td>ID</td><td>${loanData.id}</td></tr>
+                                            <tr><td>Customer ID</td><td>${loanData.customer_id}</td></tr>
+                                            <tr><td>Status</td><td>${loanData.status}</td></tr>
+                                            <tr><td>Amount</td><td>${loanData.amount}</td></tr>
+                                            <tr><td>Repayment Amount</td><td>${loanData.repayment_amount}</td></tr>
+                                            <tr><td>Reason for Loan</td><td>${loanData.reason_for_loan}</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tr><th colspan="2">User Data</th></tr>
+                                            <tr><td>Full Name</td><td>${loanData.full_name}</td></tr>
+                                            <tr><td>Date of Birth</td><td>${loanData.dob}</td></tr>
+                                            <tr><td>Occupation</td><td>${loanData.occupation}</td></tr>
+                                            <tr><td>Residential Address</td><td>${loanData.residential_address}</td></tr>
+                                            <tr><td>Phone Number</td><td>${loanData.phone_number}</td></tr>
+                                            <tr><td>Employment Status</td><td>${loanData.employment_status}</td></tr>
+                                            <tr><td>Company Name</td><td>${loanData.company_name}</td></tr>
+                                            <tr><td>Bank Name</td><td>${loanData.bank_name}</td></tr>
+                                            <tr><td>Account Number</td><td>${loanData.account_bank_number}</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                        $('#loanDetails').html(modalContent);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error: ' + error);
+                },
+                complete: function() {
+                    // Hide loader
+                    $('#loader').hide();
                 }
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error: ' + error);
-            // Show generic error message for failed request
-            Swal.fire({
-                title: 'Info!',
-                text: xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to move loan to awaiting disbursement. Please try again later.',
-                icon: 'error',
-                confirmButtonText: 'OK'
             });
         }
-    });
-}
 
-// Bind click event to move loan to awaiting disbursement
-$(document).on('click', '.move-to-awaiting-disbursement', function (e) {
-    e.preventDefault();
-    var loanId = $(this).data('id');
-    moveToAwaitingDisbursement(loanId);
-});
-                     });
-                            </script>
-                            
-                
-                            {% endblock content %}
-                            
+        // Event listener for the View button
+        $(document).on('click', '.view-loan', function() {
+            var loanId = $(this).data('id');
+            viewLoanDetails(loanId);
+        });
+    });
+</script>
+{% endblock %}

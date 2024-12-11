@@ -931,12 +931,20 @@ def pl(request):
 def teams(request):
     return render(request, 'pages/teams.html')
 
+def privacy(request):
+    return render(request, 'pages/privacy.html')
 
-# Customer Dashboard
+def privacy(request):
+    return render(request, 'pages/privacy.html')
+
+def terms(request):
+    return render(request, 'pages/terms.html')
+
+#Customer Dashboard
 def customerDashboard(request):
     return render(request, 'accounts/custDashboard.html')
 
-# Staff Dashboard
+#Staff Dashboard
 
 
 def staffDashboard(request):

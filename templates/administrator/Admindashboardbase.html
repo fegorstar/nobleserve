@@ -1,170 +1,144 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
-    <title>Noblepay | {% block title %}    {% endblock %}</title>
+    <title>
+      Noblepay |{% block title %}
+
+      {% endblock %}
+    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta content="Get a Payday Loan- Access Fast, Secure and Easy Payday Loan" name="description" />
     <meta content="Noblepay" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  
-    <link rel="shortcut icon" href="{% static 'admindashboardassets/img/favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'admindashboardassets/img/favicon.ico' %}" />
     <!-- google fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" />
     <!-- plugin stylesheets -->
     <link rel="stylesheet" type="text/css" href="{% static 'admindashboardassets/css/vendors.css' %}" />
     <!-- app style -->
     <link href="{% static 'admindashboardassets/css/style.css' %}" rel="stylesheet" type="text/css" />
     <!-- Include Themify Icons CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/themify-icons/0.1.2/css/themify-icons.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/themify-icons/0.1.2/css/themify-icons.min.css" />
+  </head>
 
-</head>
-
-<body class="light-sidebar">
+  <body class="light-sidebar">
     <!-- begin app -->
     <div class="app">
-        <!-- begin app-wrap -->
-        <div class="app-wrap">
-            <!-- begin pre-loader -->
-            <div class="loader">
-                <div class="h-100 d-flex justify-content-center">
-                    <div class="align-self-center">
-                        <img src="{% static 'admindashboardassets/img/loader/loader.svg' %}" alt="loader">
-                    </div>
-                </div>
+      <!-- begin app-wrap -->
+      <div class="app-wrap">
+        <!-- begin pre-loader -->
+        <div class="loader">
+          <div class="h-100 d-flex justify-content-center">
+            <div class="align-self-center">
+              <img src="{% static 'admindashboardassets/img/loader/loader.svg' %}" alt="loader" />
             </div>
-            <!-- end pre-loader -->
-          
-            <!-- end app-header -->
-            <!-- begin app-container -->
-                
-    {% block content %}
- 
-    {% endblock %}
-            <!-- end app-container -->
-          
+          </div>
         </div>
-        <!-- end app-wrap -->
+        <!-- end pre-loader -->
+
+        <!-- end app-header -->
+        <!-- begin app-container -->
+
+        {% block content %}
+
+        {% endblock %}
+        <!-- end app-container -->
+      </div>
+      <!-- end app-wrap -->
     </div>
     <!-- end app -->
 
     <!-- plugins -->
-    
-    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
- 
- 
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-
     <script>
-        // Ensure jQuery is loaded before this script
-     $(document).ready(function() {
-         // Function to handle form submission
-         $('#login-form').submit(function(event) {
-             event.preventDefault(); // Prevent default form submission behavior
-             const email = $('#inputEmailAddress').val();
-             const password = $('#password-field').val();
-             const csrfToken = $('input[name="csrfmiddlewaretoken"]').val(); // Get CSRF token
-     
-             // Show loader icon and disable login button
-             $('#login-btn').prop('disabled', true);
-             $('#login-btn .login-text').addClass('d-none');
-             $('#login-btn .spinner-border').removeClass('d-none');
-     
-             $.ajax({
-                 type: 'POST',
-                 url: 'https://backendapi.noblepay.online/public/api/v1/admin/login',
-                 data: JSON.stringify({
-                     email: email,
-                     password: password
-                 }),
-                 contentType: 'application/json',
-                 headers: {
-                     'X-CSRFToken': csrfToken, // Include CSRF token in header
-                     'Accept': 'application/json' // Include Accept header for JSON response
-                 },
-                 success: function(response) {
-                     // Handle successful login
-                     console.log(response);
-                     // Save user data to local storage
-                     localStorage.setItem('access_token', response.access_token);
-                     localStorage.setItem('email', response.admin.email);
-                     localStorage.setItem('name', response.admin.name);
-     
-                     // Check if the user is authenticated
-                     if (response.access_token && response.admin.email) {
-                         // Redirect to admin dashboard
-                         window.location.href = '{% url "admin-dashboard" %}';
-                     } else {
-                         // Handle authentication failure
-                         console.error('Authentication failed');
-                         // Display error message
-                         Swal.fire({
-                             icon: 'error',
-                             title: 'Authentication failed',
-                             text: 'Please try again.',
-                             customClass: {
-                                 popup: 'swal-small' // Apply custom class to reduce the size
-                             }
-                         });
-                     }
-                 },
-                 error: function(xhr, textStatus, errorThrown) {
-                    // Handle login error
-                    console.error(xhr.responseText);
-                    let errorMessage = 'An error occurred. Please try again later.';
-                    
-                    // Check if the response text is defined
-                    if (xhr.responseText) {
-                        // Attempt to parse the error response
-                        try {
-                            const errorResponse = JSON.parse(xhr.responseText);
-                            // Check if the response contains the "message" key
-                            if (errorResponse.hasOwnProperty('message')) {
-                                errorMessage = errorResponse.message;
-                            }
-                        } catch (e) {
-                            console.error('Failed to parse error response as JSON:', e);
-                        }
-                    }
-                
-                    // Display error message using SweetAlert
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage,
-                        customClass: {
-                            popup: 'swal-small' // Apply custom class to reduce the size
-                        }
-                    });
-                },
-                 complete: function() {
-                     // Hide loader icon and enable login button
-                     $('#login-btn').prop('disabled', false);
-                     $('#login-btn .login-text').removeClass('d-none');
-                     $('#login-btn .spinner-border').addClass('d-none');
-                 }
-             });
-         });
-     
-         // Function to display the error message again if there's a new error
-         $('.btn1').click(function(event) {
-             event.preventDefault();
-             if ($('#message').html().trim() === '') {
-                 // If no error message is currently displayed, do nothing
-                 return;
-             }
-             var target = $(this).data('target');
-             $('#click-alert').html('data-target= ' + target).fadeIn(50).delay(3000).fadeOut(1000);
-         });
-     });
-     
-     </script>
-     <script src="{% static 'admindashboardassets/js/vendors.js' %}"></script>
-     <script src="{% static 'admindashboardassets/js/app.js' %}"></script>
-</body>
-
+      // Ensure jQuery is loaded before this script
+      $(document).ready(function () {
+        // Function to handle form submission
+        $('#login-form').submit(function (event) {
+          event.preventDefault() // Prevent default form submission behavior
+          const email = $('#inputEmailAddress').val()
+          const password = $('#password-field').val()
+          const csrfToken = $('input[name="csrfmiddlewaretoken"]').val() // Get CSRF token
+      
+          // Show loader icon and disable login button
+          $('#login-btn').prop('disabled', true)
+          $('#login-btn .login-text').addClass('d-none')
+          $('#login-btn .spinner-border').removeClass('d-none')
+      
+          $.ajax({
+            type: 'POST',
+            url: 'https://backendapi.noblepay.online/public/api/v1/admin/login',
+            data: JSON.stringify({
+              email: email,
+              password: password
+            }),
+            contentType: 'application/json',
+            headers: {
+              'X-CSRFToken': csrfToken, // Include CSRF token in header
+              Accept: 'application/json' // Include Accept header for JSON response
+            },
+            success: function (response) {
+              // Handle successful login
+              console.log(response)
+              // Save user data to local storage
+              localStorage.setItem('access_token', response.access_token)
+              localStorage.setItem('email', response.admin.email)
+              localStorage.setItem('name', response.admin.name)
+      
+              // Check if the user is authenticated
+              if (response.access_token && response.admin.email) {
+                // Redirect to admin dashboard
+                window.location.href = '{% url "admin-dashboard" %}'
+              } else {
+                // Handle authentication failure
+                console.error('Authentication failed')
+                showError('Authentication failed. Please try again.')
+              }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+              // Handle login error
+              console.error(xhr.responseText)
+              let errorMessage = 'An error occurred. Please try again later.'
+      
+              // Check if the response text is defined
+              if (xhr.responseText) {
+                // Attempt to parse the error response
+                try {
+                  const errorResponse = JSON.parse(xhr.responseText)
+                  // Check if the response contains the "message" key
+                  if (errorResponse.hasOwnProperty('message')) {
+                    errorMessage = errorResponse.message
+                  }
+                } catch (e) {
+                  console.error('Failed to parse error response as JSON:', e)
+                }
+              }
+      
+              // Display error message using SweetAlert
+              showError(errorMessage)
+            },
+            complete: function () {
+              // Hide loader icon and enable login button
+              $('#login-btn').prop('disabled', false)
+              $('#login-btn .login-text').removeClass('d-none')
+              $('#login-btn .spinner-border').addClass('d-none')
+            }
+          })
+        })
+      
+        function showError(message) {
+          $('#message').text(message).fadeIn(500).delay(3000).fadeOut(1000)
+        }
+      })
+    </script>
+    <script src="{% static 'admindashboardassets/js/vendors.js' %}"></script>
+    <script src="{% static 'admindashboardassets/js/app.js' %}"></script>
+  </body>
 </html>

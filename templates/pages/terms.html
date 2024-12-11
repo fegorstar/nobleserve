@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Terms and Conditions {% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    {% include 'partials/preloader.html' %}
+    {% include 'partials/header.html' %}
+
+    <div class="breadcrumb-wrap bg-f br-1" style="margin-top:70px">
+        <div class="container">
+            <div class="breadcrumb-title">
+                <h2>Terms of Agreement</h2>
+            </div>
+        </div>
+    </div>
+
+    <section class="terms-wrap pt-100 pb-75">
+        <div class="container">
+            <div class="row gx-5">
+                <div class="col-lg-12">
+                    <div class="single-terms">
+                        <h3>1. Acceptance of Terms</h3>
+                        <p>By using the Noblepay app, you agree to these Terms of Agreement and our Privacy Policy. If you do not agree, please do not use the app.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>2. Services</h3>
+                        <p>Noblepay provides financial services including loans, target savings, and investment opportunities. We reserve the right to modify or discontinue any aspect of the app at our discretion.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>3. User Responsibilities</h3>
+                        <p>
+                            <strong>Eligibility:</strong> You must be at least 18 years old and legally capable of entering into contracts.
+                        </p>
+                        <p>
+                            <strong>Account Security:</strong> You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.
+                        </p>
+                        <p>
+                            <strong>Accuracy:</strong> You agree to provide accurate and complete information when using the app and to update it as necessary.
+                        </p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>4. Prohibited Activities</h3>
+                        <p>You may not use the app to:</p>
+                        <ul class="content-feature-list list-style">
+                            <li><i class="ri-checkbox-multiple-line"></i>Violate any applicable laws or regulations.</li>
+                            <li><i class="ri-checkbox-multiple-line"></i>Engage in fraudulent or deceptive activities.</li>
+                            <li><i class="ri-checkbox-multiple-line"></i>Interfere with or disrupt the app’s functionality or security.</li>
+                        </ul>
+                    </div>
+                    <div class="single-terms">
+                        <h3>5. Limitation of Liability</h3>
+                        <p>Nobleserve Finance Company is not liable for any indirect, incidental, special, or consequential damages arising from your use of the app. Our liability is limited to the maximum extent permitted by law.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>6. Termination</h3>
+                        <p>We may suspend or terminate your access to the app if you violate these Terms or engage in activities that harm our services or other users.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>7. Governing Law</h3>
+                        <p>These Terms are governed by and construed in accordance with the laws of Nigeria. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of the courts in Nigeria.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>8. Changes to Terms</h3>
+                        <p>We may update these Terms from time to time. We will notify you of significant changes by posting the new terms on our app with an updated effective date.</p>
+                    </div>
+                    <div class="single-terms">
+                        <h3>9. Contact Us</h3>
+                        <p>For any questions about these Terms of Agreement, please contact us at:</p>
+                        <p>Nobleserve Finance Company<br>
+                           199a Jide Oki Street, Victoria Island, Lagos State.<br>
+                           cx@nobleservefinance.com<br>
+                           +2349026578421
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'partials/footer.html' %}
+</div>
+{% endblock content %}

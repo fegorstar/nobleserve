@@ -1,0 +1,214 @@
+{% extends "administrator/Admindashboardbase.html" %}
+{% load static %}
+{% block title %} Customer Dashboard {% endblock %}
+{% load widget_tweaks %}
+{% block content %}
+<!-- Include header and sidebar -->
+{% include 'administrator/partials/header.html' %}
+{% include 'administrator/partials/sidebar.html' %}
+
+<div class="app-container">
+    <div class="app-main" id="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-statistics">
+                        <div class="card-body">
+                            <div class="datatable-wrapper table-responsive">
+                                <table id="customer-table" class="display compact table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="checkAll"></th>
+                                            <th>Action</th>
+                                            <th>Image</th>
+                                            <th>Full Name</th>
+                                            <th>Email</th>
+                                            <th>Status</th>
+                                            <th>Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Table rows will be dynamically generated here -->
+                                    </tbody>
+                                </table>
+                                <div id="processing-message" style="display: none;">
+                                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+<!-- Modal for viewing customer details -->
+<div class="modal fade" id="viewCustomerModal" tabindex="-1" role="dialog" aria-labelledby="viewCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewCustomerModalLabel">View Customer Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="customerDetails">
+                <!-- Loader element -->
+                <div id="loader" class="text-center" style="display: none;">
+                    <img src="{% static 'assets/processing.gif' %}" alt="Loading...">
+                </div>
+                <!-- Customer details will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for sending email -->
+<div class="modal fade" id="sendEmailModal" tabindex="-1" role="dialog" aria-labelledby="sendEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendEmailModalLabel">Send Email to Customer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="sendEmailForm">
+                    <div class="form-group">
+                        <label for="customerEmail">Customer Email</label>
+                        <input type="text" class="form-control" id="customerEmail" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">Customer Name</label>
+                        <input type="text" class="form-control" id="customerName" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" class="form-control" id="subject">
+                    </div>
+                    <div class="form-group">
+                        <label for="messageBody">Message</label>
+                        <textarea class="form-control" id="messageBody" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include footer -->
+{% include 'administrator/partials/footer.html' %}
+
+<!-- Required Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var dataTable = $('#customer-table').DataTable({
+            processing: true,
+            serverSide: false,
+            searching: true,
+            language: {
+                "emptyTable": "Processing..."
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return '<input type="checkbox" class="row-checkbox" data-id="' + row.id + '">';
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `<div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="actionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Action
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                        <a class="dropdown-item view-customer" href="#" data-id="${row.id}">View</a>
+                                        <a class="dropdown-item send-mail" href="#" data-id="${row.id}">Send Mail</a>
+                                    </div>
+                                </div>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        const imageUrl = row.image || 'https://via.placeholder.com/50'; // Default placeholder if no image
+                        return `<img src="${imageUrl}" alt="Customer Image" class="img-thumbnail" width="50" height="50">`;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        const bvndata = row.bvndata || {};
+                        const firstName = bvndata.first_name || '';
+                        const middleName = bvndata.middle_name || '';
+                        const lastName = bvndata.last_name || '';
+                        return `${firstName} ${middleName} ${lastName}`.trim();
+                    }
+                },
+                { data: 'email' },
+                { data: 'status', render: formatStatus },
+                { data: 'created_at', render: formatDate }
+            ]
+        });
+
+        function formatStatus(status) {
+            var badgeClass;
+            switch (status.toLowerCase()) {
+                case 'active':
+                    badgeClass = 'badge-success';
+                    break;
+                case 'pending':
+                    badgeClass = 'badge-warning';
+                    break;
+                case 'inactive':
+                    badgeClass = 'badge-danger';
+                    break;
+                default:
+                    badgeClass = 'badge-secondary';
+            }
+            return '<span class="badge ' + badgeClass + '">' + status + '</span>';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+            return date.toLocaleString('en-US', options);
+        }
+
+        // Fetch customer data
+        var accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+            console.error('Access token not found in local storage');
+            return;
+        }
+
+        $.ajax({
+            url: '{{ BASE_API_URL }}/admin/customer/list',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            },
+            success: function (response) {
+                if (response.message === "Loans fetched successfully") {
+                    dataTable.clear();
+                    dataTable.rows.add(response.data);
+                    dataTable.draw();
+                } else {
+                    console.error('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error: ' + error);
+            }
+        });
+    });
+</script>
+{% endblock %}

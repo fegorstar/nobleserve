@@ -35,6 +35,8 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('teams/', views.teams, name='teams'),
     path('faq/', views.faq, name='faq'),
+    path('privacy/', views.privacy, name='privacy'),
+    path('terms/', views.terms, name='terms'),
     # service details
     path('TargetSavingsPlan/', views.ntsp, name='ntsp'),
     path('NobleserveNairaInvestment/', views.npn, name='npn'),
